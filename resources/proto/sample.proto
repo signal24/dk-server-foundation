@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package sgnl24.SampleRpc;
+
+///
+/// Framework
+///
+
+message PingPong {}
+
+message WriteByteStream { bytes chunk = 1; }
+message FinishByteStream {}
+message DestroyByteStream { optional string error = 1; }
+message ByteStreamOperation {
+  int32 streamId = 1;
+  oneof operation {
+    WriteByteStream write = 2;
+    FinishByteStream finish = 3;
+    DestroyByteStream destroy = 4;
+  }
+}
+message TraceContext {
+  string traceId = 1;
+  string spanId = 2;
+  int32 traceFlags = 3;
+}
+
+///
+/// Upstream requests (client-initiated)
+///
+
+message USampleRequest {}
+message USampleResponse {}
+
+///
+/// Downstream requests (server-initiated)
+///
+
+message DSampleRequest {}
+message DSampleResponse {}
+
+///
+/// Client & Server message containers
+///
+
+message ClientMessage {
+  string requestId = 1;
+  bool reply = 2;
+  optional string error = 3;
+  optional bool userError = 4;
+  optional TraceContext trace = 5;
+
+  oneof request {
+    // framework
+    PingPong pingPong = 50;
+    ByteStreamOperation byteStreamOperation = 51;
+
+    // upstream requests (client-initiated)
+    USampleRequest uSampleRequest = 1000;
+
+    // downstream responses (responding to server)
+    DSampleResponse dSampleResponse = 2000;
+  }
+}
+
+message ServerMessage {
+  string requestId = 1;
+  bool reply = 2;
+  optional string error = 3;
+  optional bool userError = 4;
+  optional TraceContext trace = 5;
+
+  oneof response {
+    // framework
+    PingPong pingPong = 50;
+    ByteStreamOperation byteStreamOperation = 51;
+
+    // upstream responses (responding to client)
+    USampleResponse uSampleResponse = 1000;
+
+    // downstream requests (server-initiated)
+    DSampleRequest dSampleRequest = 2000;
+  }
+}
+

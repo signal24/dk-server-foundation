@@ -1,0 +1,178 @@
+syntax = "proto3";
+
+package sgnl24.TestRpc;
+
+///
+/// Framework
+///
+
+message PingPong {}
+
+message WriteByteStream { bytes chunk = 1; }
+message FinishByteStream {}
+message DestroyByteStream { optional string error = 1; }
+message ByteStreamOperation {
+  int32 streamId = 1;
+  oneof operation {
+    WriteByteStream write = 2;
+    FinishByteStream finish = 3;
+    DestroyByteStream destroy = 4;
+  }
+}
+message TraceContext {
+  string traceId = 1;
+  string spanId = 2;
+  int32 traceFlags = 3;
+}
+
+///
+/// Upstream requests (client-initiated)
+///
+
+// Simple echo test
+message UEchoRequest {
+  string message = 1;
+}
+message UEchoResponse {
+  string message = 1;
+}
+
+// Request with complex data types
+message UComplexRequest {
+  string stringField = 1;
+  int32 intField = 2;
+  double doubleField = 3;
+  bool boolField = 4;
+  repeated string arrayField = 5;
+  map<string, string> mapField = 6;
+}
+message UComplexResponse {
+  string result = 1;
+  int32 count = 2;
+}
+
+// Request that should return an error
+message UErrorRequest {
+  string errorMessage = 1;
+  bool userError = 2;
+}
+message UErrorResponse {
+  string result = 1;
+}
+
+// Request for byte stream testing
+message UUploadRequest {
+  int32 streamId = 1;
+  string filename = 2;
+}
+message UUploadResponse {
+  string message = 1;
+  int32 bytesReceived = 2;
+}
+
+// Request for download testing (server creates byte stream)
+message UDownloadRequest {
+  string filename = 1;
+}
+message UDownloadResponse {
+  int32 streamId = 1;
+  int32 bytesTotal = 2;
+}
+
+// Request with timeout testing
+message USlowRequest {
+  int32 delayMs = 1;
+}
+message USlowResponse {
+  string message = 1;
+  int32 actualDelayMs = 2;
+}
+
+///
+/// Downstream requests (server-initiated)
+///
+
+// Server can invoke client
+message DNotifyRequest {
+  string notification = 1;
+}
+message DNotifyResponse {
+  bool acknowledged = 1;
+}
+
+// Server requests client to perform computation
+message DComputeRequest {
+  int32 number = 1;
+  string operation = 2;
+}
+message DComputeResponse {
+  int32 result = 1;
+}
+
+// Server requests byte stream from client
+message DRequestDataRequest {
+  int32 streamId = 1;
+  int32 dataSize = 2;
+}
+message DRequestDataResponse {
+  bool success = 1;
+}
+
+///
+/// Client & Server message containers
+///
+
+message ClientMessage {
+  string requestId = 1;
+  bool reply = 2;
+  optional string error = 3;
+  optional bool userError = 4;
+  optional TraceContext trace = 5;
+
+  oneof request {
+    // framework
+    PingPong pingPong = 50;
+    ByteStreamOperation byteStreamOperation = 51;
+
+    // upstream requests (client-initiated)
+    UEchoRequest uEchoRequest = 1000;
+    UComplexRequest uComplexRequest = 1001;
+    UErrorRequest uErrorRequest = 1002;
+    UUploadRequest uUploadRequest = 1003;
+    UDownloadRequest uDownloadRequest = 1004;
+    USlowRequest uSlowRequest = 1005;
+
+    // downstream responses (responding to server)
+    DNotifyResponse dNotifyResponse = 2000;
+    DComputeResponse dComputeResponse = 2001;
+    DRequestDataResponse dRequestDataResponse = 2002;
+  }
+}
+
+message ServerMessage {
+  string requestId = 1;
+  bool reply = 2;
+  optional string error = 3;
+  optional bool userError = 4;
+  optional TraceContext trace = 5;
+
+  oneof response {
+    // framework
+    PingPong pingPong = 50;
+    ByteStreamOperation byteStreamOperation = 51;
+
+    // upstream responses (responding to client)
+    UEchoResponse uEchoResponse = 1000;
+    UComplexResponse uComplexResponse = 1001;
+    UErrorResponse uErrorResponse = 1002;
+    UUploadResponse uUploadResponse = 1003;
+    UDownloadResponse uDownloadResponse = 1004;
+    USlowResponse uSlowResponse = 1005;
+
+    // downstream requests (server-initiated)
+    DNotifyRequest dNotifyRequest = 2000;
+    DComputeRequest dComputeRequest = 2001;
+    DRequestDataRequest dRequestDataRequest = 2002;
+  }
+}
+

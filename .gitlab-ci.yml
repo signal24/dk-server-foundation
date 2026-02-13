@@ -1,0 +1,67 @@
+image: node:24-alpine
+
+default:
+  interruptible: true
+
+stages:
+  - test
+  - deploy
+
+.test_base:
+  stage: deploy
+  services:
+    - name: mysql:8
+      variables:
+        MYSQL_ROOT_PASSWORD: secret
+        MYSQL_DATABASE: default
+    - name: postgres:17-alpine
+      variables:
+        POSTGRES_USER: root
+        POSTGRES_PASSWORD: secret
+        POSTGRES_DB: default
+    - name: redis:alpine
+  variables:
+    MYSQL_HOST: mysql
+    MYSQL_PORT: 3306
+    PG_HOST: postgres
+    PG_PORT: 5432
+    PG_USER: root
+    PG_PASSWORD_SECRET: secret
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
+
+.test_script: &test_script |
+  set -x
+
+  yarn --immutable
+
+  yarn gen:proto
+  yarn test
+  yarn testapp
+
+  npm run build
+
+test:
+  extends: .test_base
+  script: *test_script
+  except:
+    - main
+
+test and deploy:
+  extends: .test_base
+  script:
+    - *test_script
+    - |
+      apk add git
+
+      BUILD_VERSION=$(TZ=UTC0 git show -s --format=%cd --date=format-local:'%y.%m%d.%H%M' HEAD)
+      BUILD_VERSION=$(echo -n ${BUILD_VERSION} | sed -E 's/\.0+/./g')
+      npm version ${BUILD_VERSION} --git-tag-version=false
+
+      npm config set -- //${PRIVATE_NPM_URL}/:_authToken="${PRIVATE_NPM_PUBLISHER_TOKEN}"
+      npm publish --registry https://${PRIVATE_NPM_URL}/
+
+      npm config set //registry.npmjs.org/:_authToken="${NPM_PUBLISH_TOKEN}"
+      npm publish --registry https://registry.npmjs.org/ --access public
+  only:
+    - main

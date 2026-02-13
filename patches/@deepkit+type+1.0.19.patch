@@ -1,0 +1,38 @@
+diff --git a/node_modules/@deepkit/type/dist/cjs/src/reflection/processor.js b/node_modules/@deepkit/type/dist/cjs/src/reflection/processor.js
+index 651e875..11fa7cf 100644
+--- a/node_modules/@deepkit/type/dist/cjs/src/reflection/processor.js
++++ b/node_modules/@deepkit/type/dist/cjs/src/reflection/processor.js
+@@ -1334,6 +1334,8 @@ class Processor {
+             if ((0, type_js_1.isPrimitive)(a) && (0, type_js_1.isPrimitive)(b) && a.kind !== b.kind) {
+                 return { kind: type_js_1.ReflectionKind.never };
+             }
++            if (b.kind === type_js_1.ReflectionKind.unknown)
++                return a;
+             if (a.kind === type_js_1.ReflectionKind.objectLiteral || a.kind === type_js_1.ReflectionKind.class || a.kind === type_js_1.ReflectionKind.never || a.kind === type_js_1.ReflectionKind.unknown)
+                 return b;
+             if (b.annotations) {
+diff --git a/node_modules/@deepkit/type/dist/esm/src/reflection/processor.js b/node_modules/@deepkit/type/dist/esm/src/reflection/processor.js
+index 46c2df3..83a9e21 100644
+--- a/node_modules/@deepkit/type/dist/esm/src/reflection/processor.js
++++ b/node_modules/@deepkit/type/dist/esm/src/reflection/processor.js
+@@ -1323,6 +1323,8 @@ export class Processor {
+             if (isPrimitive(a) && isPrimitive(b) && a.kind !== b.kind) {
+                 return { kind: ReflectionKind.never };
+             }
++            if (b.kind === ReflectionKind.unknown)
++                return a;
+             if (a.kind === ReflectionKind.objectLiteral || a.kind === ReflectionKind.class || a.kind === ReflectionKind.never || a.kind === ReflectionKind.unknown)
+                 return b;
+             if (b.annotations) {
+diff --git a/node_modules/@deepkit/type/src/reflection/processor.ts b/node_modules/@deepkit/type/src/reflection/processor.ts
+index 0c6a605..e76d78e 100644
+--- a/node_modules/@deepkit/type/src/reflection/processor.ts
++++ b/node_modules/@deepkit/type/src/reflection/processor.ts
+@@ -1422,6 +1422,7 @@ export class Processor {
+                 return { kind: ReflectionKind.never }
+             }
+
++            if (b.kind === ReflectionKind.unknown) return a;
+             if (a.kind === ReflectionKind.objectLiteral || a.kind === ReflectionKind.class || a.kind === ReflectionKind.never || a.kind === ReflectionKind.unknown) return b;
+
+             if (b.annotations) {
