@@ -28,7 +28,10 @@
         "postinstall:alt": "patch-package && deepkit-type-install",
         "testapp": "yarn clean && tsc -p tsconfig.testapp.json && node dist/testapp/bootstrap server:start",
         "demoapp": "yarn build:devconsole && dksf-dev run -p tsconfig.demoapp.json dist/demoapp/bootstrap",
-        "gen:proto": "ts-node src/cli/dksf-gen-proto.ts resources/proto/test.proto resources/proto/generated/test && ts-node src/cli/dksf-gen-proto.ts resources/proto/devconsole.proto resources/proto/generated/devconsole"
+        "gen:proto": "ts-node src/cli/dksf-gen-proto.ts resources/proto/test.proto resources/proto/generated/test && ts-node src/cli/dksf-gen-proto.ts resources/proto/devconsole.proto resources/proto/generated/devconsole",
+        "docs:dev": "vitepress dev docs-new",
+        "docs:build": "vitepress build docs-new",
+        "docs:preview": "vitepress preview docs-new"
     },
     "author": "Sean Ferguson <support@sgnl24.com>",
     "license": "MIT",
@@ -116,7 +119,9 @@
         "ts-node": "^10.9.2",
         "tslib": "^2.8.1",
         "type-fest": "^5.4.4",
-        "typescript": "~5.9"
+        "typescript": "~5.9",
+        "vitepress": "^1.6.4",
+        "vue": "^3.5.28"
     },
     "files": [
         "dist/src/",
