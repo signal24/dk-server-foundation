@@ -96,11 +96,29 @@ The built-in DevConsole provides a comprehensive development dashboard:
 ### Request Inspector
 ![DevConsole Requests](/images/devconsole/03-requests.png)
 
+### Request Detail View
+![DevConsole Request Detail](/images/devconsole/07-requests-detail.png)
+
 ### Database Browser
 ![DevConsole Database](/images/devconsole/04-database.png)
 
+### Database Query Results
+![DevConsole Database Detail](/images/devconsole/08-database-detail.png)
+
+### SRPC Connection Monitor
+![DevConsole SRPC Detail](/images/devconsole/06-srpc-detail.png)
+
 ### Worker Monitor
 ![DevConsole Workers](/images/devconsole/05-workers.png)
+
+### OpenAPI Schema Viewer
+![DevConsole OpenAPI](/images/devconsole/09-openapi.png)
+
+### Interactive REPL
+![DevConsole REPL](/images/devconsole/10-repl.png)
+
+### Redis Mutex Monitor
+![DevConsole Mutex](/images/devconsole/11-mutex.png)
 
 ## Features at a Glance
 

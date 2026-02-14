@@ -15,11 +15,29 @@ DevConsole is zero-config, localhost-only, and requires no additional setup beyo
 ### HTTP Requests
 ![DevConsole Requests](/images/devconsole/03-requests.png)
 
+### Request Detail
+![DevConsole Request Detail](/images/devconsole/07-requests-detail.png)
+
 ### Database Browser
 ![DevConsole Database](/images/devconsole/04-database.png)
 
+### Database Query Results
+![DevConsole Database Detail](/images/devconsole/08-database-detail.png)
+
+### SRPC Connection Monitor
+![DevConsole SRPC Detail](/images/devconsole/06-srpc-detail.png)
+
 ### Workers
 ![DevConsole Workers](/images/devconsole/05-workers.png)
+
+### OpenAPI Schema
+![DevConsole OpenAPI](/images/devconsole/09-openapi.png)
+
+### Interactive REPL
+![DevConsole REPL](/images/devconsole/10-repl.png)
+
+### Redis Mutex Monitor
+![DevConsole Mutex](/images/devconsole/11-mutex.png)
 
 ## Views
 
