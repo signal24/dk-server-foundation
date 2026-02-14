@@ -13,3 +13,4 @@ dist
 docs/.vitepress/dist
 docs/.vitepress/cache
 docs-old
+docs-new/
