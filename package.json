@@ -29,9 +29,9 @@
         "testapp": "yarn clean && tsc -p tsconfig.testapp.json && node dist/testapp/bootstrap server:start",
         "demoapp": "yarn build:devconsole && dksf-dev run -p tsconfig.demoapp.json dist/demoapp/bootstrap",
         "gen:proto": "ts-node src/cli/dksf-gen-proto.ts resources/proto/test.proto resources/proto/generated/test && ts-node src/cli/dksf-gen-proto.ts resources/proto/devconsole.proto resources/proto/generated/devconsole",
-        "docs:dev": "vitepress dev docs-new",
-        "docs:build": "vitepress build docs-new",
-        "docs:preview": "vitepress preview docs-new"
+        "docs:dev": "vitepress dev docs",
+        "docs:build": "vitepress build docs",
+        "docs:preview": "vitepress preview docs"
     },
     "author": "Sean Ferguson <support@sgnl24.com>",
     "license": "MIT",

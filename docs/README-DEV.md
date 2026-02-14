@@ -35,7 +35,7 @@ Build the static site for production:
 yarn docs:build
 ```
 
-The built site will be in `docs-new/.vitepress/dist`
+The built site will be in `docs/.vitepress/dist`
 
 ### Preview
 
@@ -48,7 +48,7 @@ yarn docs:preview
 ## Structure
 
 ```
-docs-new/
+docs/
 ├── .vitepress/
 │   ├── config.mts          # VitePress configuration
 │   └── dist/               # Build output (generated)
@@ -70,13 +70,13 @@ docs-new/
 
 ## Adding Documentation
 
-1. Create or edit Markdown files in `docs-new/`
+1. Create or edit Markdown files in `docs/`
 2. Update the sidebar in `.vitepress/config.mts` if adding new pages
 3. Use standard Markdown with VitePress enhancements
 
 ## Adding Images
 
-Place images in `docs-new/public/images/` and reference them with `/images/...` in Markdown:
+Place images in `docs/public/images/` and reference them with `/images/...` in Markdown:
 
 ```markdown
 ![Alt text](/images/example.png)

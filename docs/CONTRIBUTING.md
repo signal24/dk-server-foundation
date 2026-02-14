@@ -14,7 +14,7 @@ Thank you for contributing to the dk-server-foundation documentation!
    yarn docs:dev
    ```
    
-   This will start a local server at http://localhost:5173 with hot reload.
+   This will start a local server with hot reload.
 
 3. **Make your changes** to the Markdown files in the `docs/` directory.
 
