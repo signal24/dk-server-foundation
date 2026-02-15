@@ -65,6 +65,7 @@ Key concepts:
 
 - `createApp()` accepts a config class, database class, framework config, CORS options, and feature flags (worker, Deepkit RPC)
 - The function returns a configured Deepkit App instance with all necessary providers, listeners, and hooks
+- **Port in tests**: When `APP_ENV=test`, the `PORT` config value is ignored; the server uses the hardcoded default (3000) or `frameworkConfig.port` if provided
 - Use `@AutoStart()` decorator on services that should initialize at startup (before DI injection)
 - **Graceful Shutdown**: `ShutdownListener` (src/app/shutdown.ts) intercepts SIGTERM/SIGINT and dispatches `onServerShutdownRequested` before forwarding to Deepkit's built-in shutdown. Listeners on this event are awaited, allowing async cleanup before the framework tears down. Register handlers via `@eventDispatcher.listen(onServerShutdownRequested)`.
 
