@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { ChildProcess, spawn, spawnSync } from 'child_process';
-import { existsSync, readFileSync, writeFileSync, unlinkSync, rmSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, unlinkSync, writeFileSync } from 'fs';
 import { createHash } from 'crypto';
 import { tmpdir } from 'os';
 import { join, dirname } from 'path';
@@ -131,7 +131,21 @@ function extractTsconfigArg(args: string[]): string | undefined {
 }
 
 function clean(): void {
-    rmSync(join(projectDir, 'dist'), { recursive: true, force: true });
+    const distDir = join(projectDir, 'dist');
+    const devconsoleDir = join(distDir, 'devconsole');
+    const hasDevconsole = existsSync(devconsoleDir);
+    const devconsoleBackup = join(projectDir, '.devconsole-backup');
+
+    if (hasDevconsole) {
+        renameSync(devconsoleDir, devconsoleBackup);
+    }
+
+    rmSync(distDir, { recursive: true, force: true });
+
+    if (hasDevconsole) {
+        mkdirSync(distDir, { recursive: true });
+        renameSync(devconsoleBackup, devconsoleDir);
+    }
 }
 
 function tsc(tsconfig: string): void {
