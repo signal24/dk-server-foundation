@@ -73,6 +73,9 @@ The `dksf-test` runner will automatically load `dist/tests/shared/globalSetup.js
 # Run a single test file (source path is mapped to dist automatically)
 yarn test tests/my-feature.spec.ts
 
+# Run all tests in a directory
+yarn test tests/integration/
+
 # Pass node flags
 yarn test --test-name-pattern="my test"
 ```

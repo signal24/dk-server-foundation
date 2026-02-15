@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
 
 import { spawn } from 'child_process';
-import { readdirSync } from 'fs';
+import { globSync } from 'fs';
 import { join, resolve } from 'path';
 
 process.env.TZ = 'UTC';
@@ -40,28 +40,17 @@ async function main() {
     }
 
     // Collect test files
-    let testFiles: string[];
-    if (fileArgs.length > 0) {
-        // Map source paths to dist paths
-        testFiles = fileArgs.map(f => {
-            if (f.startsWith('dist/')) return f;
-            return f.replace(/^tests\//, 'dist/tests/').replace(/\.ts$/, '.js');
-        });
-    } else {
-        // Find all spec files in dist/tests
-        testFiles = [];
-        const findSpecFiles = (dir: string) => {
-            const entries = readdirSync(dir, { withFileTypes: true });
-            for (const entry of entries) {
-                const fullPath = join(dir, entry.name);
-                if (entry.isDirectory()) {
-                    findSpecFiles(fullPath);
-                } else if (entry.name.endsWith('.spec.js')) {
-                    testFiles.push(fullPath);
-                }
-            }
-        };
-        findSpecFiles(join(distDir, 'tests'));
+    const testFiles: string[] = [];
+    for (const f of fileArgs) {
+        const distPath = f.startsWith('dist/') ? f : f.replace(/^tests\//, 'dist/tests/').replace(/\.ts$/, '.js');
+        if (distPath.endsWith('/') || !distPath.includes('.')) {
+            testFiles.push(...globSync(join(distPath, '**/*.spec.js')));
+        } else {
+            testFiles.push(distPath);
+        }
+    }
+    if (testFiles.length === 0) {
+        testFiles.push(...globSync(join(distDir, 'tests', '**/*.spec.js')));
     }
 
     // Run node --test

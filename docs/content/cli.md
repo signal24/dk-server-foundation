@@ -237,6 +237,9 @@ dksf-dev test
 # Run specific test file(s)
 dksf-dev test tests/helpers/array.spec.ts
 
+# Run all tests in a directory
+dksf-dev test tests/integration/
+
 # Debug mode
 dksf-dev test --debug
 ```
