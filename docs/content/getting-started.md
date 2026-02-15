@@ -84,7 +84,7 @@ interface CreateAppOptions<C extends BaseAppConfig> extends RootModuleDefinition
 | `db`              | No       | Database class created via `createMySQLDatabase()`. Registers health check and enables entity management. |
 | `frameworkConfig` | No       | Override Deepkit framework settings (debug mode, etc.).                                                   |
 | `cors`            | No       | Factory function returning CORS options. Receives the resolved config instance.                           |
-| `enableWorker`    | No       | Enable BullMQ worker system. Registers job runner, observer, and CLI commands.                            |
+| `enableWorker`    | No       | Enable BullMQ worker system. Registers job runner with leader-elected recorder and CLI commands.          |
 | `enableDkRpc`     | No       | Enable Deepkit's built-in RPC module.                                                                     |
 
 Standard Deepkit `RootModuleDefinition` fields are also accepted: `controllers`, `providers`, `listeners`, `imports`, `exports`, `workflows`, `middlewares`.

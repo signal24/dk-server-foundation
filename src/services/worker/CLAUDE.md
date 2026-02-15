@@ -1,6 +1,6 @@
 # Worker System
 
-The worker system integrates BullMQ to queue background jobs and Deepkit services to run them. Enabling workers wires together the queue registry, runner, observer, CLI commands, and the `_jobs` audit table.
+The worker system integrates BullMQ to queue background jobs and Deepkit services to run them. Enabling workers wires together the queue registry, runner, recorder, CLI commands, and the `_jobs` audit table.
 
 ## Enabling Workers
 
@@ -17,11 +17,11 @@ const app = createApp({
 When `enableWorker` is set:
 
 - `WorkerService` becomes injectable for queueing jobs.
-- `WorkerRunnerService` and `WorkerObserverService` are registered (but only started when appropriate).
-- CLI controllers (`worker:start`, `worker:runner`, `worker:observer`, `worker:queue`) become available.
+- `WorkerRunnerService` is registered (but only started when appropriate).
+- CLI controllers (`worker:start`, `worker:queue`) become available.
 - `JobEntity` is added to the database schema to persist job lifecycle data.
 
-At runtime, the runner/observer auto-start in non-production environments. In production, toggle them with configuration flags (`ENABLE_JOB_RUNNER`, `ENABLE_JOB_OBSERVER`). They can also be launched explicitly through the CLI commands listed above.
+At runtime, the runner auto-starts in non-production environments. In production, toggle it with the `ENABLE_JOB_RUNNER` configuration flag. It can also be launched explicitly through the `worker:start` CLI command.
 
 ## Defining Jobs
 
@@ -65,10 +65,22 @@ class NotificationController {
 
 `queueJob` accepts an optional `{ delay?: number }` option. When running in test environment (`APP_ENV=test`), the method simply logs a warning and skips queueing to keep tests deterministic.
 
-## Runner & Observer
+## Runner & Recorder
 
 - **WorkerRunnerService** pulls jobs from the configured BullMQ queue and invokes the `handle()` method. It resolves job classes registered with `@WorkerJob()` and honours `CRON_SCHEDULE`.
-- **WorkerObserverService** listens for BullMQ lifecycle events, writes entries to the `_jobs` table via `JobEntity`, and clears completed/failed jobs from Redis after logging. It also wires into the health-check system to ensure Redis remains reachable.
+- **WorkerRecorderService** listens for BullMQ lifecycle events, writes entries to the `_jobs` table via `JobEntity`, and clears completed/failed jobs from Redis after logging. It is instantiated by the runner, not via DI.
+
+### Leader Election
+
+The runner uses `LeaderService` (Redis-based leader election) so that when multiple runners are deployed, only one acts as the recorder at any given time. The recorder lifecycle is:
+
+1. Runner starts and calls `recorder.ensureTableExists()` to ensure the `_jobs` table exists.
+2. Runner creates a `LeaderService('worker-recorder')` and starts election.
+3. When a runner becomes leader, it calls `recorder.start()` to begin listening for queue events.
+4. When leadership is lost, it calls `recorder.stop()` to close the QueueEvents connection.
+5. On shutdown, the runner explicitly stops both the leader service and the recorder.
+
+This eliminates the need for a separate observer process — just run runners, and one automatically handles recording.
 
 Both services close BullMQ resources during shutdown and support graceful termination through the Deepkit event system.
 

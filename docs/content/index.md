@@ -28,7 +28,7 @@ features:
     details: JWT (HS256/EdDSA) and HTTP Basic Auth with entity resolution and password hashing
   - icon: ⚙️
     title: Background Workers
-    details: BullMQ-based job processing with decorators, cron scheduling, and lifecycle observers
+    details: BullMQ-based job processing with decorators, cron scheduling, and leader-elected recording
   - icon: 🔌
     title: WebSocket RPC
     details: Bidirectional SRPC with HMAC auth, ts-proto code generation, and binary streams

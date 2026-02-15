@@ -411,9 +411,7 @@ logger.error('Failed to process', err);
 | `dksf-update`                                | Update utility                                           |
 | `repl`                                       | Interactive REPL with access to all providers            |
 | `provider:invoke <provider> <method> [args]` | Invoke any provider method from CLI                      |
-| `worker:start`                               | Start both job runner and observer                       |
-| `worker:runner`                              | Start just the job runner                                |
-| `worker:observer`                            | Start just the job observer                              |
+| `worker:start`                               | Start the job runner (with leader-elected recorder)      |
 | `worker:queue <jobName> [data]`              | Queue a job by name                                      |
 | `migration:create`                           | Generate migration from entity/DB schema diff            |
 | `migration:run`                              | Run pending database migrations                          |
@@ -439,7 +437,7 @@ yarn demoapp
 
 - **Timezone**: The server enforces UTC. The entry point throws if `TZ !== UTC`.
 - **Identity Maps**: Disabled by default in database sessions for predictable behavior.
-- **Development Mode**: When `APP_ENV !== 'production'`, DevConsole is enabled at `/_devconsole/`, connection pools are smaller, and worker runner/observer auto-start.
+- **Development Mode**: When `APP_ENV !== 'production'`, DevConsole is enabled at `/_devconsole/`, connection pools are smaller, and the worker runner auto-starts.
 
 ## Commands
 

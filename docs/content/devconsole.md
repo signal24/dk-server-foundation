@@ -101,7 +101,7 @@ DevConsole initializes via `initDevConsole()` in `src/devconsole/patches.ts`, wh
 - **HTTP Kernel** — captures request/response data for the Requests view
 - **HTTP Workflow** — captures controller errors
 - **SRPC Client & Server** — observes messages and connection lifecycle
-- **Worker Observer** — listens to BullMQ job events
+- **Worker Recorder** — listens to BullMQ job events
 - **Mutex (`withMutex`)** — tracks mutex acquisitions and releases
 
 Captured data is stored in ring buffers (`DevConsoleStore`) for bounded memory usage.

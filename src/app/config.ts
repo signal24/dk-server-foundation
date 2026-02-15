@@ -88,7 +88,6 @@ export class BaseAppConfig {
 
     // on by default in dev
     ENABLE_JOB_RUNNER?: boolean;
-    ENABLE_JOB_OBSERVER?: boolean;
 
     SENTRY_DSN?: string;
     OTEL_EXPORTER_OTLP_ENDPOINT?: string;

@@ -6,9 +6,8 @@ import { Redis } from 'ioredis';
 import { getAppConfig } from '../../app/resolver';
 import { isDevelopment } from '../../app/const';
 import { globalState } from '../../app/state';
-import { WorkerQueueJobCommand, WorkerStartCommand, WorkerStartObserverCommand, WorkerStartRunnerCommand } from './cli';
+import { WorkerQueueJobCommand, WorkerStartCommand } from './cli';
 import { JobEntity } from './entity';
-import { WorkerObserverService } from './observer';
 import { WorkerQueueRegistry } from './queue';
 import { WorkerRunnerService } from './runner';
 
@@ -17,12 +16,9 @@ export function installWorkerComponents(app: App<any>) {
     globalState.enableWorker = true;
     globalState.additionalEntities.push(JobEntity);
 
-    app.appModule.addProvider(WorkerObserverService);
     app.appModule.addProvider(WorkerRunnerService);
 
     app.appModule.addController(WorkerStartCommand);
-    app.appModule.addController(WorkerStartRunnerCommand);
-    app.appModule.addController(WorkerStartObserverCommand);
     app.appModule.addController(WorkerQueueJobCommand);
 
     class WorkerListener {
@@ -38,7 +34,7 @@ export function installWorkerComponents(app: App<any>) {
             (Redis.prototype as any).connect = () => {};
         }
 
-        // we want this to run very late in the process, after the worker and observer have shut down
+        // we want this to run very late in the process, after the worker has shut down
         @eventDispatcher.listen(onServerShutdown, 1000)
         async closeQueues() {
             await WorkerQueueRegistry.closeQueues();
@@ -50,7 +46,6 @@ export function installWorkerComponents(app: App<any>) {
         if (!globalState.isCliService) {
             setTimeout(() => {
                 const config = getAppConfig();
-                if (config.ENABLE_JOB_OBSERVER ?? isDevelopment) app.get(WorkerObserverService).start();
                 if (config.ENABLE_JOB_RUNNER ?? isDevelopment) app.get(WorkerRunnerService).start();
             }, 1000);
         }

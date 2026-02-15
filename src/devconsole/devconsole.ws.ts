@@ -250,7 +250,7 @@ export class DevConsoleSrpcServer {
                     completedAt: j.completedAt.getTime()
                 }));
             } catch {
-                // _jobs table may not exist if observer hasn't run
+                // _jobs table may not exist if recorder hasn't run
             }
 
             return { jsonData: JSON.stringify({ live, history }) };

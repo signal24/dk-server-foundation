@@ -127,10 +127,9 @@ Used by `withMutex()` and `LeaderService`. Falls back to default Redis settings.
 
 ### Workers
 
-| Variable              | Type      | Default      | Description                   |
-| --------------------- | --------- | ------------ | ----------------------------- |
-| `ENABLE_JOB_RUNNER`   | `boolean` | `true` (dev) | Enable BullMQ job runner      |
-| `ENABLE_JOB_OBSERVER` | `boolean` | `true` (dev) | Enable job lifecycle observer |
+| Variable            | Type      | Default      | Description              |
+| ------------------- | --------- | ------------ | ------------------------ |
+| `ENABLE_JOB_RUNNER` | `boolean` | `true` (dev) | Enable BullMQ job runner |
 
 ### Observability
 

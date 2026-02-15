@@ -14,7 +14,7 @@ const app = createApp({
 });
 ```
 
-This registers the job runner, observer, queue registry, and CLI commands. In development, the runner and observer auto-start. In production, they're controlled via `ENABLE_JOB_RUNNER` and `ENABLE_JOB_OBSERVER` environment variables.
+This registers the job runner, queue registry, and CLI commands. In development, the runner auto-starts. In production, it's controlled via the `ENABLE_JOB_RUNNER` environment variable.
 
 ## Defining Jobs
 
@@ -134,17 +134,21 @@ node app.js worker:start
 
 ### Auto-Start (Development)
 
-In development, the runner and observer start automatically if `ENABLE_JOB_RUNNER` is not explicitly set to `false`.
+In development, the runner starts automatically if `ENABLE_JOB_RUNNER` is not explicitly set to `false`.
 
-## Job Observer
+## Job Recorder
 
-The `WorkerObserverService` monitors BullMQ queue events and logs job lifecycle to the `_jobs` database table. It tracks:
+The `WorkerRecorderService` monitors BullMQ queue events and logs job lifecycle to the `_jobs` database table. It tracks:
 
 - Job added, active, completed, failed
 - Execution duration
 - Error messages for failed jobs
 
 The `_jobs` table is created automatically if it doesn't exist.
+
+### Leader Election
+
+The recorder uses `LeaderService` (Redis-based leader election) so that when multiple runner instances are deployed, only one of them acts as the recorder at any given time. If the current recorder goes down, another runner automatically takes over recording duties. This eliminates the need for a separate observer process.
 
 ## Queue Registry
 
@@ -162,13 +166,12 @@ await WorkerQueueRegistry.closeQueues();
 
 ## Configuration
 
-| Variable              | Type      | Default      | Description           |
-| --------------------- | --------- | ------------ | --------------------- |
-| `BULL_REDIS_HOST`     | `string`  | —            | Redis host for BullMQ |
-| `BULL_REDIS_PORT`     | `number`  | —            | Redis port for BullMQ |
-| `BULL_REDIS_PREFIX`   | `string`  | —            | Redis key prefix      |
-| `BULL_QUEUE`          | `string`  | `default`    | Default queue name    |
-| `ENABLE_JOB_RUNNER`   | `boolean` | `true` (dev) | Enable job runner     |
-| `ENABLE_JOB_OBSERVER` | `boolean` | `true` (dev) | Enable job observer   |
+| Variable            | Type      | Default      | Description           |
+| ------------------- | --------- | ------------ | --------------------- |
+| `BULL_REDIS_HOST`   | `string`  | —            | Redis host for BullMQ |
+| `BULL_REDIS_PORT`   | `number`  | —            | Redis port for BullMQ |
+| `BULL_REDIS_PREFIX` | `string`  | —            | Redis key prefix      |
+| `BULL_QUEUE`        | `string`  | `default`    | Default queue name    |
+| `ENABLE_JOB_RUNNER` | `boolean` | `true` (dev) | Enable job runner     |
 
 Falls back to default `REDIS_*` settings if `BULL_REDIS_*` is not set.

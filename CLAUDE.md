@@ -128,7 +128,7 @@ Background job processing (src/services/worker/) using BullMQ with Redis:
 - **BaseJob**: Extend this class and use `@WorkerJob()` decorator to define jobs
 - **WorkerService**: Queue jobs via `workerSvc.queueJob(JobClass, data, options)`
 - **Job Runners**: Separate process workers that execute queued jobs (src/services/worker/runner.ts)
-- **Job Observer**: Monitors job completion and failures (src/services/worker/observer.ts)
+- **Job Recorder**: Monitors job completion and failures via leader-elected recorder (src/services/worker/recorder.ts). One runner self-elects as recorder using `LeaderService`; if it goes down, another takes over.
 
 Jobs are automatically registered when `enableWorker: true` is passed to `createApp()`.
 
@@ -247,7 +247,7 @@ Custom types (src/types/):
 
 When `APP_ENV !== 'production'`:
 
-- **DevConsole**: Built-in web dashboard at `/_devconsole/`, initialized via `initDevConsole()` in `src/devconsole/patches.ts`. Provides HTTP request inspector, SRPC connection monitor, database entity browser with SQL editor, BullMQ worker inspector, Redis mutex monitor, health check viewer, environment config display, OpenAPI schema viewer, and a live REPL. Localhost-only access enforced by `DevConsoleLocalhostMiddleware`. Uses SRPC over WebSocket (`/_devconsole/ws`) for real-time push updates. Frontend is a Vue 3 SPA in `devconsole/` that builds to `dist/devconsole/`. Server-side code lives in `src/devconsole/` — `patches.ts` monkey-patches core components (HTTP kernel, SRPC, worker observer, mutex) to intercept events; `devconsole.store.ts` holds ring buffers; `devconsole.ws.ts` is the SRPC server; `devconsole.controller.ts` serves static assets.
+- **DevConsole**: Built-in web dashboard at `/_devconsole/`, initialized via `initDevConsole()` in `src/devconsole/patches.ts`. Provides HTTP request inspector, SRPC connection monitor, database entity browser with SQL editor, BullMQ worker inspector, Redis mutex monitor, health check viewer, environment config display, OpenAPI schema viewer, and a live REPL. Localhost-only access enforced by `DevConsoleLocalhostMiddleware`. Uses SRPC over WebSocket (`/_devconsole/ws`) for real-time push updates. Frontend is a Vue 3 SPA in `devconsole/` that builds to `dist/devconsole/`. Server-side code lives in `src/devconsole/` — `patches.ts` monkey-patches core components (HTTP kernel, SRPC, worker recorder, mutex) to intercept events; `devconsole.store.ts` holds ring buffers; `devconsole.ws.ts` is the SRPC server; `devconsole.controller.ts` serves static assets.
 - **Demo App**: `yarn demoapp` runs a demo app with auto-generated traffic to showcase all DevConsole features
 - Set `ENABLE_OPENAPI_SCHEMA` to also dump the schema to `openapi.yaml` on disk
 - Additional debugging tools in `src/app/dev.ts`

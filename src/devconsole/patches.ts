@@ -26,7 +26,7 @@ export function initDevConsole(app: App<any>) {
         _patchesApplied = true;
         patchHttpKernel(store);
         patchHttpWorkflow();
-        patchWorkerObserver(store);
+        patchWorkerRecorder(store);
         patchSrpcClient(store);
         patchSrpcServer(store);
         patchMutex(store);
@@ -175,19 +175,19 @@ function patchHttpWorkflow() {
 }
 
 ////////////////////////////////////////
-// Worker Observer
+// Worker Recorder
 
-function patchWorkerObserver(store: DevConsoleStore) {
-    let WorkerObserverService: any;
+function patchWorkerRecorder(store: DevConsoleStore) {
+    let WorkerRecorderService: any;
     try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
-        WorkerObserverService = require('../services/worker/observer').WorkerObserverService;
+        WorkerRecorderService = require('../services/worker/recorder').WorkerRecorderService;
     } catch {
         return;
     }
 
-    const origStart = WorkerObserverService.prototype.start;
-    WorkerObserverService.prototype.start = async function (this: any) {
+    const origStart = WorkerRecorderService.prototype.start;
+    WorkerRecorderService.prototype.start = async function (this: any) {
         await origStart.call(this);
 
         const observer = this.observer;
@@ -205,8 +205,8 @@ function patchWorkerObserver(store: DevConsoleStore) {
         }
     };
 
-    const origLogJob = WorkerObserverService.prototype.logJob;
-    WorkerObserverService.prototype.logJob = async function (this: any, job: any, status: 'completed' | 'failed', result: any) {
+    const origLogJob = WorkerRecorderService.prototype.logJob;
+    WorkerRecorderService.prototype.logJob = async function (this: any, job: any, status: 'completed' | 'failed', result: any) {
         await origLogJob.call(this, job, status, result);
 
         const traceparent = job.opts?.traceparent;

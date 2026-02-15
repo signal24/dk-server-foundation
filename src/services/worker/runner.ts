@@ -3,13 +3,16 @@ import { Job, Queue, Worker } from 'bullmq';
 
 import { BaseAppConfig } from '../../app';
 import { getAppConfig, resolveDeep } from '../../app/resolver';
+import { DBProvider } from '../../app/state';
 import { HealthcheckService } from '../../health/healthcheck.service';
 import { sleepSecs, withContextData } from '../../helpers';
 import { getRegisteredClasses } from '../../helpers/framework/decorators';
 import { createRedisOptions } from '../../helpers/redis/redis';
 import { getTraceContext, setSpanAttributes, withRootSpan } from '../../telemetry';
 import { createLogger, ExtendedLogger } from '../logger';
+import { LeaderService } from '../leader';
 import { WorkerQueueRegistry } from './queue';
+import { WorkerRecorderService } from './recorder';
 import { JobClass, WorkerSymbol } from './types';
 
 export class WorkerRunnerService {
@@ -20,8 +23,13 @@ export class WorkerRunnerService {
     private queue?: Queue;
     private jobHandlers = new Map<string, InstanceType<JobClass>>();
     private runningJob?: Job;
+    private recorder?: WorkerRecorderService;
+    private leader?: LeaderService;
 
-    constructor(private hcSvc: HealthcheckService) {
+    constructor(
+        private hcSvc: HealthcheckService,
+        private dbProvider: DBProvider
+    ) {
         this.appConfig = getAppConfig();
         this.queueName = this.appConfig.BULL_QUEUE;
         this.logger = createLogger(this, { queue: this.queueName });
@@ -107,6 +115,21 @@ export class WorkerRunnerService {
                 throw new Error('Worker Redis connection is not ready');
             }
         });
+
+        // Set up recorder with leader election
+        this.recorder = new WorkerRecorderService(this.dbProvider);
+        await this.recorder.ensureTableExists();
+
+        this.leader = new LeaderService('worker-recorder');
+        this.leader.setBecameLeaderCallback(async () => {
+            this.logger.info('This runner is now the recorder leader');
+            await this.recorder!.start();
+        });
+        this.leader.setLostLeaderCallback(async () => {
+            this.logger.info('This runner lost recorder leadership');
+            await this.recorder!.stop();
+        });
+        this.leader.start();
     }
 
     private async withJobSpan<T>(job: Job, fn: () => Promise<T>) {
@@ -128,6 +151,16 @@ export class WorkerRunnerService {
     }
 
     async shutdown() {
+        // Stop leader election first (releases Redis lock)
+        if (this.leader) {
+            await this.leader.stop();
+        }
+
+        // Explicitly stop recorder (LeaderService.stop() does NOT call lostLeaderCallback)
+        if (this.recorder) {
+            await this.recorder.stop();
+        }
+
         // there's something crazy going on with worker shutdown when it hasn't successfully connected to Redis
         if (this.isRedisReady()) {
             await this.worker?.pause(true);

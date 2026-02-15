@@ -111,26 +111,10 @@ Defaults to `utf8mb4` / `utf8mb4_0900_ai_ci`.
 
 #### `worker:start`
 
-Start both the BullMQ job runner and observer:
+Start the BullMQ job runner. One runner automatically self-elects as the job recorder via leader election:
 
 ```bash
 node app.js worker:start
-```
-
-#### `worker:runner`
-
-Start just the job runner (without the observer):
-
-```bash
-node app.js worker:runner
-```
-
-#### `worker:observer`
-
-Start just the job observer (without the runner):
-
-```bash
-node app.js worker:observer
 ```
 
 #### `worker:queue`

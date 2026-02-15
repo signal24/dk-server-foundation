@@ -5,103 +5,26 @@ import { Job, QueueEvents } from 'bullmq';
 import { getAppConfig } from '../../app/resolver';
 import { DBProvider } from '../../app/state';
 import { createPersistedEntity, getDialect, tableExistsSql } from '../../database';
-import { HealthcheckService } from '../../health/healthcheck.service';
 import { createRedisOptions } from '../../helpers/redis/redis';
 import { createLogger, ExtendedLogger } from '../logger';
 import { JobEntity } from './entity';
 import { WorkerQueueRegistry } from './queue';
 import { BaseAppConfig } from '../../app';
 
-export class WorkerObserverService {
+export class WorkerRecorderService {
     private appConfig: BaseAppConfig;
     private queueName: string;
     private logger: ExtendedLogger;
     private observer?: QueueEvents;
     private db = this.dbProvider.db;
 
-    constructor(
-        private hcSvc: HealthcheckService,
-        private dbProvider: DBProvider
-    ) {
+    constructor(private dbProvider: DBProvider) {
         this.appConfig = getAppConfig();
         this.queueName = this.appConfig.BULL_QUEUE;
         this.logger = createLogger(this, { queueName: this.queueName });
     }
 
-    async start() {
-        await this.ensureTableExists();
-
-        const { options, prefix } = createRedisOptions('BULL');
-        this.observer = new QueueEvents(this.queueName, {
-            connection: options,
-            prefix: `${prefix}:bmq`
-        });
-
-        const queue = WorkerQueueRegistry.getQueue(this.appConfig.BULL_QUEUE);
-
-        this.observer.on('added', args => {
-            this.logger.info('Job added', {
-                jobId: args.jobId,
-                jobName: args.name
-            });
-        });
-        this.observer.on('active', args => {
-            this.logger.info('Job activated', { jobId: args.jobId });
-        });
-        this.observer.on('stalled', args => {
-            this.logger.warn('Job stalled', { jobId: args.jobId });
-        });
-        this.observer.on('delayed', args => {
-            this.logger.info('Job delayed', { jobId: args.jobId, delay: args.delay });
-        });
-        this.observer.on('completed', async args => {
-            this.logger.info('Job completed', { jobId: args.jobId });
-            const job = await queue.getJob(args.jobId);
-            if (job) {
-                await this.logJob(job, 'completed', args.returnvalue);
-                await queue.remove(job.id!);
-            }
-        });
-        this.observer.on('failed', async args => {
-            this.logger.info('Job failed', { jobId: args.jobId });
-            const job = await queue.getJob(args.jobId);
-            if (job) {
-                await this.logJob(job, 'failed', { reason: job.failedReason, stack: job.failedReason });
-                await queue.remove(job.id!);
-            }
-        });
-        this.observer.on('error', err => {
-            this.logger.error('Observer error:', err);
-        });
-
-        this.logger.info('Observer started');
-
-        const completedJobs = await queue.getCompleted();
-        for (const job of completedJobs) {
-            this.logger.info('Logging previously completed job', { jobId: job.id });
-            await this.logJob(job, 'completed', job.returnvalue);
-            await queue.remove(job.id!);
-        }
-
-        const failedJobs = await queue.getFailed();
-        for (const job of failedJobs) {
-            this.logger.error('Logging previously failed job', { jobId: job.id });
-            await this.logJob(job, 'failed', { reason: job.failedReason, stack: job.stacktrace });
-            await queue.remove(job.id!);
-        }
-
-        this.hcSvc.register('Worker Observer', async () => {
-            if (!this.isRedisReady()) {
-                throw new Error('Observer Redis connection is not ready');
-            }
-        });
-    }
-
-    private isRedisReady() {
-        return this.observer?.['connection']['_client'].status === 'ready' || this.observer?.['connection']['_client'].status === 'wait';
-    }
-
-    private async ensureTableExists() {
+    async ensureTableExists() {
         const dialect = getDialect(this.db.adapter as SQLDatabaseAdapter);
         const tableInfoRows = await this.db.rawQuery(tableExistsSql(dialect, '_jobs'));
         if (tableInfoRows.length) return;
@@ -144,6 +67,75 @@ export class WorkerObserverService {
                     PRIMARY KEY (\`id\`,\`attempt\`)
                 ) ENGINE=InnoDB;
             `);
+        }
+    }
+
+    async start() {
+        const { options, prefix } = createRedisOptions('BULL');
+        this.observer = new QueueEvents(this.queueName, {
+            connection: options,
+            prefix: `${prefix}:bmq`
+        });
+
+        const queue = WorkerQueueRegistry.getQueue(this.appConfig.BULL_QUEUE);
+
+        this.observer.on('added', args => {
+            this.logger.info('Job added', {
+                jobId: args.jobId,
+                jobName: args.name
+            });
+        });
+        this.observer.on('active', args => {
+            this.logger.info('Job activated', { jobId: args.jobId });
+        });
+        this.observer.on('stalled', args => {
+            this.logger.warn('Job stalled', { jobId: args.jobId });
+        });
+        this.observer.on('delayed', args => {
+            this.logger.info('Job delayed', { jobId: args.jobId, delay: args.delay });
+        });
+        this.observer.on('completed', async args => {
+            this.logger.info('Job completed', { jobId: args.jobId });
+            const job = await queue.getJob(args.jobId);
+            if (job) {
+                await this.logJob(job, 'completed', args.returnvalue);
+                await queue.remove(job.id!);
+            }
+        });
+        this.observer.on('failed', async args => {
+            this.logger.info('Job failed', { jobId: args.jobId });
+            const job = await queue.getJob(args.jobId);
+            if (job) {
+                await this.logJob(job, 'failed', { reason: job.failedReason, stack: job.failedReason });
+                await queue.remove(job.id!);
+            }
+        });
+        this.observer.on('error', err => {
+            this.logger.error('Recorder error:', err);
+        });
+
+        this.logger.info('Recorder started');
+
+        const completedJobs = await queue.getCompleted();
+        for (const job of completedJobs) {
+            this.logger.info('Logging previously completed job', { jobId: job.id });
+            await this.logJob(job, 'completed', job.returnvalue);
+            await queue.remove(job.id!);
+        }
+
+        const failedJobs = await queue.getFailed();
+        for (const job of failedJobs) {
+            this.logger.error('Logging previously failed job', { jobId: job.id });
+            await this.logJob(job, 'failed', { reason: job.failedReason, stack: job.stacktrace });
+            await queue.remove(job.id!);
+        }
+    }
+
+    async stop() {
+        if (this.observer) {
+            await this.observer.close();
+            this.observer = undefined;
+            this.logger.info('Recorder stopped');
         }
     }
 
