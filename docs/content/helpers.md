@@ -9,7 +9,7 @@ Organized utility functions for common patterns: async context, Redis operations
 Request-scoped context using `AsyncLocalStorage`:
 
 ```typescript
-import { withContext, withContextData, getContextProp, setContextProp, removeContextProp } from '@signal24/dk-server-foundation';
+import { withContext, withContextData, getContextProp, setContextProp, removeContextProp } from '@zyno-io/dk-server-foundation';
 
 // Run code within a context
 await withContext(async () => {
@@ -32,7 +32,7 @@ await withContextData({ reqId: 'abc', traceId: 'xyz' }, async () => {
 One-time use semaphore for coordinating async operations:
 
 ```typescript
-import { createSemaphore } from '@signal24/dk-server-foundation';
+import { createSemaphore } from '@zyno-io/dk-server-foundation';
 
 const { release, promise } = createSemaphore();
 
@@ -48,7 +48,7 @@ release();
 Execute child processes with OpenTelemetry tracing:
 
 ```typescript
-import { execProcess } from '@signal24/dk-server-foundation';
+import { execProcess } from '@zyno-io/dk-server-foundation';
 
 const result = await execProcess('git', ['status'], {
     cwd: '/path/to/repo',
@@ -75,7 +75,7 @@ Options:
 ### Array Utilities
 
 ```typescript
-import { toArray, asyncMap } from '@signal24/dk-server-foundation';
+import { toArray, asyncMap } from '@zyno-io/dk-server-foundation';
 
 toArray('single'); // ['single']
 toArray([1, 2, 3]); // [1, 2, 3]
@@ -89,7 +89,7 @@ const results = await asyncMap(items, async (item, index) => {
 ### Object Utilities
 
 ```typescript
-import { objectKeys, objectEntries, extractValues, extractUpdates, patchObject, extractKV } from '@signal24/dk-server-foundation';
+import { objectKeys, objectEntries, extractValues, extractUpdates, patchObject, extractKV } from '@zyno-io/dk-server-foundation';
 
 // Type-safe Object.keys/entries
 const keys = objectKeys(myObj); // (keyof typeof myObj)[]
@@ -116,7 +116,7 @@ const map = extractKV(users, 'id', 'name');
 Chainable data transformation pipelines:
 
 ```typescript
-import { Transformer } from '@signal24/dk-server-foundation';
+import { Transformer } from '@zyno-io/dk-server-foundation';
 
 const result = await Transformer.create(users)
     .apply(users => users.filter(u => u.active))
@@ -140,7 +140,7 @@ const result = await Transformer.create(users)
 ### Serialization
 
 ```typescript
-import { toJson, fromJson } from '@signal24/dk-server-foundation';
+import { toJson, fromJson } from '@zyno-io/dk-server-foundation';
 
 const json = toJson({ key: 'value' });
 const obj = fromJson<MyType>(json);
@@ -153,7 +153,7 @@ const obj = fromJson<MyType>(json);
 AES-256-GCM encryption and random generation:
 
 ```typescript
-import { Crypto, randomBytes, randomString, randomBytesSync, randomStringSync } from '@signal24/dk-server-foundation';
+import { Crypto, randomBytes, randomString, randomBytesSync, randomStringSync } from '@zyno-io/dk-server-foundation';
 
 // AES-256-GCM encryption (requires CRYPTO_SECRET)
 const encrypted = Crypto.encrypt('sensitive data');
@@ -188,7 +188,7 @@ Character sets:
 ### Validation
 
 ```typescript
-import { validateOrThrow, assertInput } from '@signal24/dk-server-foundation';
+import { validateOrThrow, assertInput } from '@zyno-io/dk-server-foundation';
 
 // Validate with Deepkit types (throws ValidationError)
 validateOrThrow<MyType>(data);
@@ -203,7 +203,7 @@ assertInput(value, 'fieldName'); // Custom field name in error
 ### Decorator Utilities
 
 ```typescript
-import { createSymbolAttachmentClassDecorator, createRegistryClassDecorator, getRegisteredClasses } from '@signal24/dk-server-foundation';
+import { createSymbolAttachmentClassDecorator, createRegistryClassDecorator, getRegisteredClasses } from '@zyno-io/dk-server-foundation';
 
 // Registry decorator pattern
 const PLUGINS = Symbol('plugins');
@@ -222,7 +222,7 @@ const plugins = getRegisteredClasses<typeof MyPlugin>(PLUGINS);
 Copy Deepkit event listeners from a parent class:
 
 ```typescript
-import { applyParentEventHandlers } from '@signal24/dk-server-foundation';
+import { applyParentEventHandlers } from '@zyno-io/dk-server-foundation';
 
 class ChildListener extends ParentListener {
     // Inherit parent's @eventDispatcher.listen() handlers
@@ -233,7 +233,7 @@ applyParentEventHandlers(ChildListener);
 ### DI Introspection
 
 ```typescript
-import { getProviderTree } from '@signal24/dk-server-foundation';
+import { getProviderTree } from '@zyno-io/dk-server-foundation';
 
 const tree = getProviderTree(appModule);
 // Returns provider tree with names and modules
@@ -244,17 +244,17 @@ const tree = getProviderTree(appModule);
 ### Package Metadata
 
 ```typescript
-import { getPackageJson, getPackageVersion, getPackageName } from '@signal24/dk-server-foundation';
+import { getPackageJson, getPackageVersion, getPackageName } from '@zyno-io/dk-server-foundation';
 
 const pkg = getPackageJson(); // Memoized package.json
 const version = getPackageVersion(); // e.g., '1.2.3'
-const name = getPackageName(); // e.g., '@signal24/my-app'
+const name = getPackageName(); // e.g., '@zyno-io/my-app'
 ```
 
 ### Stream Utilities
 
 ```typescript
-import { safePipe, withResourceCleanup, PipeError } from '@signal24/dk-server-foundation';
+import { safePipe, withResourceCleanup, PipeError } from '@zyno-io/dk-server-foundation';
 
 // Promise-based pipe with error handling
 await safePipe(readableStream, writableStream);
@@ -272,7 +272,7 @@ await withResourceCleanup(async tracker => {
 ### Date Utilities
 
 ```typescript
-import { extractDate, sleepMs, sleepSecs } from '@signal24/dk-server-foundation';
+import { extractDate, sleepMs, sleepSecs } from '@zyno-io/dk-server-foundation';
 
 extractDate(new Date()); // '2024-01-15'
 await sleepMs(500); // Sleep 500ms
@@ -282,7 +282,7 @@ await sleepSecs(2); // Sleep 2 seconds
 ### Error Handling
 
 ```typescript
-import { isError, getErrorMessage, toError, tryOrError, tryOrErrorSync, reportError, setGlobalErrorReporter } from '@signal24/dk-server-foundation';
+import { isError, getErrorMessage, toError, tryOrError, tryOrErrorSync, reportError, setGlobalErrorReporter } from '@zyno-io/dk-server-foundation';
 
 isError(value); // Type guard
 getErrorMessage(value); // Extract message from any value
@@ -306,7 +306,7 @@ setGlobalErrorReporter((level, err, context) => {
 ### UUID v7
 
 ```typescript
-import { uuid7, uuid7FromDate } from '@signal24/dk-server-foundation';
+import { uuid7, uuid7FromDate } from '@zyno-io/dk-server-foundation';
 
 const id = uuid7(); // Time-ordered UUID
 const id = uuid7FromDate(new Date('2024-01-01')); // UUID from specific date
@@ -315,7 +315,7 @@ const id = uuid7FromDate(new Date('2024-01-01')); // UUID from specific date
 ### JSX Rendering
 
 ```typescript
-import { jsxToHtml } from '@signal24/dk-server-foundation';
+import { jsxToHtml } from '@zyno-io/dk-server-foundation';
 
 const html = await jsxToHtml(<div class="wrapper"><h1>Hello</h1></div>);
 // Renders Deepkit JSX templates to HTML strings

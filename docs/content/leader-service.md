@@ -5,7 +5,7 @@ Distributed leader election using Redis. Exactly one instance holds leadership a
 ## Usage
 
 ```typescript
-import { LeaderService } from '@signal24/dk-server-foundation';
+import { LeaderService } from '@zyno-io/dk-server-foundation';
 
 const leader = new LeaderService('my-feature');
 

@@ -24,7 +24,7 @@ yarn test:debug
 ```typescript
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { TestingHelpers, makeMockRequest } from '@signal24/dk-server-foundation';
+import { TestingHelpers, makeMockRequest } from '@zyno-io/dk-server-foundation';
 
 // Pass app options (not an app instance) -- the facade creates the app for you
 const tf = TestingHelpers.createTestingFacade(
@@ -106,7 +106,7 @@ Environment variables:
 Define reusable test data with automatic date handling:
 
 ```typescript
-import { TestingHelpers } from '@signal24/dk-server-foundation';
+import { TestingHelpers } from '@zyno-io/dk-server-foundation';
 
 const { defineEntityFixtures, loadEntityFixtures } = TestingHelpers;
 
@@ -149,7 +149,7 @@ const prepared = TestingHelpers.prepareEntityFixtures(User, {
 ## Mock HTTP Requests
 
 ```typescript
-import { makeMockRequest } from '@signal24/dk-server-foundation';
+import { makeMockRequest } from '@zyno-io/dk-server-foundation';
 
 // Without custom headers
 const res = await makeMockRequest(tf, 'GET', '/api/users', {});
@@ -180,7 +180,7 @@ Default headers from `options.defaultTestHeaders` are merged with per-request he
 Mock database queries without a real database:
 
 ```typescript
-import { SqlTestingHelper } from '@signal24/dk-server-foundation';
+import { SqlTestingHelper } from '@zyno-io/dk-server-foundation';
 
 const sql = new SqlTestingHelper();
 
@@ -213,7 +213,7 @@ If your tests use Redis-backed features, call `disconnectAllRedis()` in your `af
 
 ```typescript
 import { after } from 'node:test';
-import { disconnectAllRedis } from '@signal24/dk-server-foundation';
+import { disconnectAllRedis } from '@zyno-io/dk-server-foundation';
 
 after(async () => {
     await tf.stop();

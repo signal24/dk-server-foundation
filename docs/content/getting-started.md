@@ -3,9 +3,9 @@
 ## Installation
 
 ```bash
-npm install @signal24/dk-server-foundation
+npm install @zyno-io/dk-server-foundation
 # or
-yarn add @signal24/dk-server-foundation
+yarn add @zyno-io/dk-server-foundation
 ```
 
 ### TypeScript Configuration
@@ -26,7 +26,7 @@ Your `tsconfig.json` must enable experimental decorators and Deepkit reflection:
 Use `createApp()` to set up a Deepkit application with opinionated defaults.
 
 ```typescript
-import { createApp, BaseAppConfig, createMySQLDatabase } from '@signal24/dk-server-foundation';
+import { createApp, BaseAppConfig, createMySQLDatabase } from '@zyno-io/dk-server-foundation';
 
 // 1. Define your config
 class AppConfig extends BaseAppConfig {
@@ -94,7 +94,7 @@ Standard Deepkit `RootModuleDefinition` fields are also accepted: `controllers`,
 Services decorated with `@AutoStart()` are instantiated at application startup, before dependency injection requests. Use this for services that need to establish connections or start background processes.
 
 ```typescript
-import { AutoStart } from '@signal24/dk-server-foundation';
+import { AutoStart } from '@zyno-io/dk-server-foundation';
 
 @AutoStart()
 class WebSocketManager {
@@ -110,7 +110,7 @@ class WebSocketManager {
 Use `resolve()` (or its alias `r()`) to access providers outside of constructor injection:
 
 ```typescript
-import { r, resolve, getApp, getAppConfig } from '@signal24/dk-server-foundation';
+import { r, resolve, getApp, getAppConfig } from '@zyno-io/dk-server-foundation';
 
 // Resolve a provider
 const db = r(MyDatabase);
@@ -126,7 +126,7 @@ const config = getAppConfig();
 Recursively searches through module imports to find a provider. Returns `undefined` if not found.
 
 ```typescript
-import { resolveDeep } from '@signal24/dk-server-foundation';
+import { resolveDeep } from '@zyno-io/dk-server-foundation';
 
 const service = resolveDeep(MyService); // searches all modules
 ```
@@ -134,7 +134,7 @@ const service = resolveDeep(MyService); // searches all modules
 ## Environment Detection
 
 ```typescript
-import { isDevelopment, isTest } from '@signal24/dk-server-foundation';
+import { isDevelopment, isTest } from '@zyno-io/dk-server-foundation';
 
 if (isDevelopment) {
     // APP_ENV and NODE_ENV are unset or 'development'

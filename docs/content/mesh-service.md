@@ -7,7 +7,7 @@ Typed RPC between distributed application instances. Each node gets a unique int
 ### Define a message map
 
 ```typescript
-import { MeshService, MeshMessageMap } from '@signal24/dk-server-foundation';
+import { MeshService, MeshMessageMap } from '@zyno-io/dk-server-foundation';
 
 type MyMessages = {
     getStatus: { request: { verbose: boolean }; response: { status: string; uptime: number } };

@@ -28,7 +28,7 @@ POSTMARK_SECRET=your-api-token
 ### Direct Send
 
 ```typescript
-import { MailService } from '@signal24/dk-server-foundation';
+import { MailService } from '@zyno-io/dk-server-foundation';
 
 class OrderService {
     constructor(private mail: MailService) {}
@@ -77,7 +77,7 @@ const preparedFromTemplate = await this.mail.prepareFromTemplate({
 Create email templates by extending `MailTemplate`:
 
 ```typescript
-import { MailTemplate } from '@signal24/dk-server-foundation';
+import { MailTemplate } from '@zyno-io/dk-server-foundation';
 
 class WelcomeEmail extends MailTemplate<{ name: string; loginUrl: string }> {
     subject = 'Welcome to Our App!';

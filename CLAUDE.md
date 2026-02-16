@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-`@signal24/dk-server-foundation` is a TypeScript foundation library built on top of the Deepkit framework for building server applications. It provides opinionated abstractions and utilities for common server-side patterns including database management, HTTP handling, authentication, workers, RPC, and observability.
+`@zyno-io/dk-server-foundation` is a TypeScript foundation library built on top of the Deepkit framework for building server applications. It provides opinionated abstractions and utilities for common server-side patterns including database management, HTTP handling, authentication, workers, RPC, and observability.
 
 ## Core Commands
 
@@ -58,7 +58,7 @@ yarn demoapp
 Applications are created using the `createApp()` factory function (src/app/base.ts:43), which sets up a Deepkit application with opinionated defaults:
 
 - **Dependency Injection**: Uses Deepkit's DI system with custom resolver functions (`resolve()` or `r()`) for accessing providers
-- **Configuration**: Uses `@signal24/config` with a custom loader (CustomConfigLoader) that supports environment variables and defaults
+- **Configuration**: Uses `@zyno-io/config` with a custom loader (CustomConfigLoader) that supports environment variables and defaults
 - **Module System**: Based on Deepkit's module architecture with framework, HTTP, healthcheck, and optional DevConsole/OpenAPI modules (dev only)
 
 Key concepts:
@@ -180,7 +180,7 @@ Organized by category (src/helpers/):
 
 ### Configuration
 
-Configuration (src/app/config.ts) uses `@signal24/config` with environment variable support:
+Configuration (src/app/config.ts) uses `@zyno-io/config` with environment variable support:
 
 - `BaseAppConfig`: Contains all framework-level configuration (MySQL, PostgreSQL, Redis, Auth, Mail, etc.)
 - Applications should extend BaseAppConfig with their own settings

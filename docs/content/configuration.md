@@ -1,9 +1,9 @@
 # Configuration
 
-Configuration is managed via `BaseAppConfig`, which uses `@signal24/config` to load values from environment variables. Extend it with your own properties.
+Configuration is managed via `BaseAppConfig`, which uses `@zyno-io/config` to load values from environment variables. Extend it with your own properties.
 
 ```typescript
-import { BaseAppConfig } from '@signal24/dk-server-foundation';
+import { BaseAppConfig } from '@zyno-io/dk-server-foundation';
 
 class AppConfig extends BaseAppConfig {
     STRIPE_KEY_SECRET!: string;
@@ -161,7 +161,7 @@ Used by `withMutex()` and `LeaderService`. Falls back to default Redis settings.
 Helper function to check if a feature flag is enabled. Returns `true` in development/Jest by default.
 
 ```typescript
-import { isDevFeatureEnabled } from '@signal24/dk-server-foundation';
+import { isDevFeatureEnabled } from '@zyno-io/dk-server-foundation';
 
 if (isDevFeatureEnabled(config.MY_FEATURE)) {
     // enabled

@@ -7,12 +7,12 @@ OpenTelemetry auto-instrumentation and Sentry error tracking.
 Call `init()` **before** other imports to enable auto-instrumentation:
 
 ```typescript
-import { init } from '@signal24/dk-server-foundation/telemetry/otel';
+import { init } from '@zyno-io/dk-server-foundation/telemetry/otel';
 
 init();
 
 // Now import everything else
-import { createApp } from '@signal24/dk-server-foundation';
+import { createApp } from '@zyno-io/dk-server-foundation';
 ```
 
 ### `init(options?)`
@@ -51,7 +51,7 @@ The library automatically wraps `Database.prototype.transaction` to create spans
 ## Tracing Helpers
 
 ```typescript
-import { withSpan, withRootSpan, withRemoteSpan, setSpanAttributes } from '@signal24/dk-server-foundation';
+import { withSpan, withRootSpan, withRemoteSpan, setSpanAttributes } from '@zyno-io/dk-server-foundation';
 
 // Create a child span
 const result = await withSpan('processOrder', async () => {
@@ -80,7 +80,7 @@ setSpanAttributes({ 'user.id': userId, 'order.total': total });
 ### State Inspection
 
 ```typescript
-import { isTracingInstalled, getTracer, getActiveSpan, getTraceContext, disableActiveTrace } from '@signal24/dk-server-foundation';
+import { isTracingInstalled, getTracer, getActiveSpan, getTraceContext, disableActiveTrace } from '@zyno-io/dk-server-foundation';
 
 if (isTracingInstalled()) {
     const tracer = getTracer();
@@ -105,7 +105,7 @@ type SpanInfo = { traceId: string; spanId: string; traceFlags?: number } | { tra
 Sentry functions are available from the `telemetry/sentry` subpath (not re-exported from the package root):
 
 ```typescript
-import { installSentry, isSentryInstalled, flushSentry } from '@signal24/dk-server-foundation/telemetry/sentry';
+import { installSentry, isSentryInstalled, flushSentry } from '@zyno-io/dk-server-foundation/telemetry/sentry';
 
 installSentry({ dsn: 'https://...' });
 

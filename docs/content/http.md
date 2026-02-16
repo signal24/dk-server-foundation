@@ -28,7 +28,7 @@ Set via `HTTP_REQUEST_LOGGING_MODE` environment variable. Health check logging c
 Extend `HttpMiddleware` for middleware that properly handles HTTP errors and injects CORS headers into error responses:
 
 ```typescript
-import { HttpMiddleware } from '@signal24/dk-server-foundation';
+import { HttpMiddleware } from '@zyno-io/dk-server-foundation';
 
 class RateLimitMiddleware extends HttpMiddleware {
     async handle(request: HttpRequest, response: HttpResponse) {
@@ -97,7 +97,7 @@ CORS headers are precomputed early in the request workflow and injected into res
 ### Built-in HTTP Errors
 
 ```typescript
-import { HttpUserError, HttpDetailedAccessDeniedError } from '@signal24/dk-server-foundation';
+import { HttpUserError, HttpDetailedAccessDeniedError } from '@zyno-io/dk-server-foundation';
 
 // 422 - User error
 throw new HttpUserError('Invalid email format');
@@ -126,7 +126,7 @@ The workflow listener standardizes error handling:
 By default, the workflow listener attaches the request body to non-HTTP errors for debugging. This is controlled by `HttpWorkflowListenerOptions`:
 
 ```typescript
-import { HttpWorkflowListenerOptions } from '@signal24/dk-server-foundation';
+import { HttpWorkflowListenerOptions } from '@zyno-io/dk-server-foundation';
 ```
 
 | Property                | Type      | Default                                      |
@@ -146,7 +146,7 @@ const app = createApp({
 The library exports type aliases used as return type annotations on controller methods:
 
 ```typescript
-import { OkResponse, RedirectResponse, EmptyResponse, AnyResponse } from '@signal24/dk-server-foundation';
+import { OkResponse, RedirectResponse, EmptyResponse, AnyResponse } from '@zyno-io/dk-server-foundation';
 
 class MyController {
     // Return { ok: true }
@@ -181,7 +181,7 @@ class MyController {
 ## File Uploads
 
 ```typescript
-import { FileUpload } from '@signal24/dk-server-foundation';
+import { FileUpload } from '@zyno-io/dk-server-foundation';
 
 class UploadController {
     @http.POST('/upload')
@@ -201,7 +201,7 @@ Multipart forms use `_payload` as the JSON key for non-file fields.
 Cache expensive computations per request to avoid redundant database lookups:
 
 ```typescript
-import { getOrCacheValue, getCachedValue } from '@signal24/dk-server-foundation';
+import { getOrCacheValue, getCachedValue } from '@zyno-io/dk-server-foundation';
 
 const USER_KEY = Symbol('user');
 
@@ -219,7 +219,7 @@ const cachedUser = getCachedValue(request, USER_KEY);
 Create Deepkit route parameter resolvers that cache their results:
 
 ```typescript
-import { createCachingParameterResolver } from '@signal24/dk-server-foundation';
+import { createCachingParameterResolver } from '@zyno-io/dk-server-foundation';
 
 const CurrentUserResolver = createCachingParameterResolver(USER_KEY, async context => {
     // context is RouteParameterResolverContext (has .request, .type, etc.)
@@ -243,7 +243,7 @@ This overrides `HttpRequest.getRemoteAddress()` to return the value from the `x-
 The HTTP context provides request-scoped data that flows through AsyncContext:
 
 ```typescript
-import { setHttpContextResolver } from '@signal24/dk-server-foundation';
+import { setHttpContextResolver } from '@zyno-io/dk-server-foundation';
 
 // Override the default context provider (which generates a reqId)
 setHttpContextResolver(request => ({

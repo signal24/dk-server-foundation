@@ -5,7 +5,7 @@ Scoped Pino logger with async context tracking, structured data, and error repor
 ## Creating Loggers
 
 ```typescript
-import { createLogger } from '@signal24/dk-server-foundation';
+import { createLogger } from '@zyno-io/dk-server-foundation';
 
 // From a class instance (uses class name as scope)
 class OrderService {
@@ -77,7 +77,7 @@ logger.info('Action');
 Logger automatically includes async context properties in log entries. This means request IDs, trace IDs, and other context set via `setContextProp()` or `withContextData()` flow into logs automatically.
 
 ```typescript
-import { withContextData } from '@signal24/dk-server-foundation';
+import { withContextData } from '@zyno-io/dk-server-foundation';
 
 await withContextData({ reqId: 'abc-123' }, async () => {
     logger.info('Handling request');
@@ -90,7 +90,7 @@ await withContextData({ reqId: 'abc-123' }, async () => {
 Add additional logger context for the duration of a function:
 
 ```typescript
-import { withLoggerContext } from '@signal24/dk-server-foundation';
+import { withLoggerContext } from '@zyno-io/dk-server-foundation';
 
 await withLoggerContext({ jobId: 'job-456' }, async () => {
     logger.info('Processing job');
@@ -131,7 +131,7 @@ All injected `Logger` instances are `ExtendedLogger` instances.
 Access the raw Pino logger:
 
 ```typescript
-import { pinoLogger } from '@signal24/dk-server-foundation';
+import { pinoLogger } from '@zyno-io/dk-server-foundation';
 
 pinoLogger.info({ custom: 'data' }, 'Raw pino log');
 ```

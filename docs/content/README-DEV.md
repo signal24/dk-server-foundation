@@ -1,12 +1,12 @@
 # Documentation Site Development
 
-This directory contains the VitePress-based documentation site for @signal24/dk-server-foundation.
+This directory contains the VitePress-based documentation site for @zyno-io/dk-server-foundation.
 
 ## Local Development
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - Yarn package manager
 
 ### Install Dependencies
@@ -89,34 +89,38 @@ To update the DevConsole screenshots used in the documentation:
 ### Prerequisites
 
 1. Install Playwright:
-   ```bash
-   npm install -D @playwright/test
-   npx playwright install chromium
-   ```
+
+    ```bash
+    npm install -D @playwright/test
+    npx playwright install chromium
+    ```
 
 2. Ensure MySQL and Redis are running
 
 ### Capture Screenshots
 
 1. In one terminal, start the demo app:
-   ```bash
-   yarn demoapp
-   ```
+
+    ```bash
+    yarn demoapp
+    ```
 
 2. Wait for the server to start (you'll see "Server started" message)
 
 3. In another terminal, run the screenshot capture script:
-   ```bash
-   yarn docs:screenshots
-   ```
+    ```bash
+    yarn docs:screenshots
+    ```
 
 This will automatically:
+
 - Navigate through all 10 DevConsole views
 - Wait for each page to load completely
 - Capture full-page screenshots
 - Save them to `docs/content/public/images/devconsole/`
 
 For headless mode (faster, no visible browser):
+
 ```bash
 yarn docs:screenshots:headless
 ```
@@ -134,5 +138,5 @@ To trigger a manual deployment, go to the Actions tab in GitHub and run the "Dep
 ## Links
 
 - [VitePress Documentation](https://vitepress.dev/)
-- [Main Repository](https://github.com/signal24/dk-server-foundation)
-- [Published Documentation](https://signal24.github.io/dk-server-foundation/)
+- [Main Repository](https://github.com/zyno-io/dk-server-foundation)
+- [Published Documentation](https://zyno-io.github.io/dk-server-foundation/)

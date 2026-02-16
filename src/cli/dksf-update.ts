@@ -12,7 +12,7 @@ if (!existsSync(packageJsonPath)) {
     process.exit(1);
 }
 
-const latestDKSFInfoStr = execSync('npm info @signal24/dk-server-foundation@latest --json').toString();
+const latestDKSFInfoStr = execSync('npm info @zyno-io/dk-server-foundation@latest --json').toString();
 const latestDKSFInfo = JSON.parse(latestDKSFInfoStr);
 assert<{
     'dist-tags': {
@@ -63,9 +63,9 @@ async function processPackageJson(path: string) {
     }>(packageJson);
 
     if (packageJson.dependencies) {
-        const currentVersion = packageJson.dependencies['@signal24/dk-server-foundation'];
+        const currentVersion = packageJson.dependencies['@zyno-io/dk-server-foundation'];
         if (!currentVersion) {
-            console.log(`${path}: No @signal24/dk-server-foundation dependency found in package.json.`);
+            console.log(`${path}: No @zyno-io/dk-server-foundation dependency found in package.json.`);
             return packageJson;
         }
 
@@ -74,8 +74,8 @@ async function processPackageJson(path: string) {
         } else if (currentVersion === '*') {
             console.log(`${path}: DKSF set to '*'`);
         } else {
-            console.log(`${path}: Updating @signal24/dk-server-foundation from ${currentVersion} to ${latestVersion}.`);
-            packageJson.dependencies['@signal24/dk-server-foundation'] = latestVersion;
+            console.log(`${path}: Updating @zyno-io/dk-server-foundation from ${currentVersion} to ${latestVersion}.`);
+            packageJson.dependencies['@zyno-io/dk-server-foundation'] = latestVersion;
         }
 
         for (const dependency in latestDKSFInfo.dependencies) {

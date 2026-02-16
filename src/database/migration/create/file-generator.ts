@@ -23,7 +23,7 @@ export function generateMigrationFile(statements: string[], description: string)
 
 export function buildFileContent(statements: string[]): string {
     const execLines = statements.map(formatStatement).join('\n');
-    return `import { createMigration } from '@signal24/dk-server-foundation';\n\nexport default createMigration(async db => {\n${execLines}\n});\n`;
+    return `import { createMigration } from '@zyno-io/dk-server-foundation';\n\nexport default createMigration(async db => {\n${execLines}\n});\n`;
 }
 
 function formatStatement(stmt: string): string {

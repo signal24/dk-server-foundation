@@ -757,16 +757,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@signal24/dk-server-foundation-docs@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@signal24/dk-server-foundation-docs@workspace:."
-  dependencies:
-    playwright: "npm:^1.58.2"
-    vitepress: "npm:^1.6.4"
-    vue: "npm:^3.5.28"
-  languageName: unknown
-  linkType: soft
-
 "@types/estree@npm:1.0.8":
   version: 1.0.8
   resolution: "@types/estree@npm:1.0.8"
@@ -1056,6 +1046,16 @@ __metadata:
   checksum: 10c0/43a04cf44e3377ee7666787e597d45ddf83880d3e1835000201b0c471198ce83ad45e4f4a0182d68781c0a23c84a904aab253e4c6279400a235e0246b613bad2
   languageName: node
   linkType: hard
+
+"@zyno-io/dk-server-foundation-docs@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@zyno-io/dk-server-foundation-docs@workspace:."
+  dependencies:
+    playwright: "npm:^1.58.2"
+    vitepress: "npm:^1.6.4"
+    vue: "npm:^3.5.28"
+  languageName: unknown
+  linkType: soft
 
 "abbrev@npm:^4.0.0":
   version: 4.0.0

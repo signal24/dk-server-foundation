@@ -9,7 +9,7 @@ Custom validated types that integrate with Deepkit's type system for automatic v
 MySQL DATE column type. Stored as `YYYY-MM-DD` string, validated via regex pattern.
 
 ```typescript
-import { DateString } from '@signal24/dk-server-foundation';
+import { DateString } from '@zyno-io/dk-server-foundation';
 
 class Event {
     date!: DateString; // MySQL DATE column
@@ -21,7 +21,7 @@ class Event {
 A `Date` that rejects `Invalid Date` values during validation.
 
 ```typescript
-import { ValidDate } from '@signal24/dk-server-foundation';
+import { ValidDate } from '@zyno-io/dk-server-foundation';
 
 class Booking {
     startDate!: ValidDate;
@@ -35,7 +35,7 @@ class Booking {
 Strings that are automatically trimmed during Deepkit deserialization.
 
 ```typescript
-import { TrimmedString, NonEmptyTrimmedString } from '@signal24/dk-server-foundation';
+import { TrimmedString, NonEmptyTrimmedString } from '@zyno-io/dk-server-foundation';
 
 class UserInput {
     name!: NonEmptyTrimmedString; // Trimmed + must be non-empty
@@ -48,7 +48,7 @@ class UserInput {
 Regex-validated email address:
 
 ```typescript
-import { EmailAddress } from '@signal24/dk-server-foundation';
+import { EmailAddress } from '@zyno-io/dk-server-foundation';
 
 class User {
     email!: EmailAddress; // Validated against /^[a-z0-9_+.-]+@[a-z0-9-.]+\.[a-z]+$/i
@@ -64,7 +64,7 @@ Validated phone numbers using Google's libphonenumber library. Automatically cle
 International E.164 format with `+` prefix:
 
 ```typescript
-import { PhoneNumber } from '@signal24/dk-server-foundation';
+import { PhoneNumber } from '@zyno-io/dk-server-foundation';
 
 class Contact {
     phone!: PhoneNumber; // e.g., '+15551234567'
@@ -76,7 +76,7 @@ class Contact {
 North American Numbering Plan format (US/Canada) without the `+1` prefix:
 
 ```typescript
-import { PhoneNumberNANP } from '@signal24/dk-server-foundation';
+import { PhoneNumberNANP } from '@zyno-io/dk-server-foundation';
 
 class Contact {
     phone!: PhoneNumberNANP; // e.g., '5551234567'
@@ -86,7 +86,7 @@ class Contact {
 ### Phone Utilities
 
 ```typescript
-import { cleanPhone, formatPhoneFriendly } from '@signal24/dk-server-foundation';
+import { cleanPhone, formatPhoneFriendly } from '@zyno-io/dk-server-foundation';
 
 // Clean and validate (returns null if invalid)
 cleanPhone('(555) 123-4567'); // '+15551234567'
@@ -105,7 +105,7 @@ formatPhoneFriendly('+15551234567', 'US'); // '(555) 123-4567'
 MySQL POINT geometry type:
 
 ```typescript
-import { Coordinate, MySQLCoordinate, NullableMySQLCoordinate } from '@signal24/dk-server-foundation';
+import { Coordinate, MySQLCoordinate, NullableMySQLCoordinate } from '@zyno-io/dk-server-foundation';
 
 class Location {
     coords!: MySQLCoordinate; // NOT NULL POINT column
@@ -122,7 +122,7 @@ loc.coords = { x: -73.9857, y: 40.7484 }; // longitude, latitude
 Type annotation for UUID string fields:
 
 ```typescript
-import { UuidString } from '@signal24/dk-server-foundation';
+import { UuidString } from '@zyno-io/dk-server-foundation';
 
 class Resource {
     id!: UuidString;
@@ -134,7 +134,7 @@ class Resource {
 Fixed-length string validator:
 
 ```typescript
-import { Length } from '@signal24/dk-server-foundation';
+import { Length } from '@zyno-io/dk-server-foundation';
 
 class VerificationCode {
     code!: Length<6>; // Must be exactly 6 characters
@@ -146,7 +146,7 @@ class VerificationCode {
 MySQL `ON UPDATE` column expression annotation. Used by `migration:create` to generate and detect `ON UPDATE` clauses:
 
 ```typescript
-import { OnUpdate } from '@signal24/dk-server-foundation';
+import { OnUpdate } from '@zyno-io/dk-server-foundation';
 
 class User {
     updatedAt!: Date & OnUpdate<'CURRENT_TIMESTAMP'>; // ON UPDATE CURRENT_TIMESTAMP
@@ -160,7 +160,7 @@ This is MySQL-only. The annotation is ignored on PostgreSQL.
 Mark fields with application-level defaults so they become optional in entity creation:
 
 ```typescript
-import { HasDefault } from '@signal24/dk-server-foundation';
+import { HasDefault } from '@zyno-io/dk-server-foundation';
 
 class User {
     role!: string & HasDefault; // Optional in createEntity/createPersistedEntity

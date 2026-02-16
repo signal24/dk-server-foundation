@@ -140,8 +140,8 @@ Sets `APP_ENV=development` by default if not already set in the environment.
 
 All subcommands (except `clean`) accept:
 
-| Option                 | Description                                               |
-| ---------------------- | --------------------------------------------------------- |
+| Option                  | Description                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------- |
 | `-p, --tsconfig <file>` | TypeScript config file (default: `tsconfig.json`, or `tsconfig.test.json` for `test`) |
 
 #### `dksf-dev clean`
@@ -307,7 +307,7 @@ Migrations are TypeScript files in the `src/migrations/` directory (or `dist/src
 
 ```typescript
 // src/migrations/20240101_120000_add_users.ts
-import { createMigration } from '@signal24/dk-server-foundation';
+import { createMigration } from '@zyno-io/dk-server-foundation';
 
 export default createMigration(async db => {
     await db.rawExecute(sql`
@@ -324,7 +324,7 @@ export default createMigration(async db => {
 Run programmatically:
 
 ```typescript
-import { runMigrations } from '@signal24/dk-server-foundation';
+import { runMigrations } from '@zyno-io/dk-server-foundation';
 await runMigrations();
 ```
 

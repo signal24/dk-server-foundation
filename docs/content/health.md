@@ -21,7 +21,7 @@ If any registered health check fails, the endpoint returns an HTTP 500 error.
 ## Registering Health Checks
 
 ```typescript
-import { HealthcheckService } from '@signal24/dk-server-foundation';
+import { HealthcheckService } from '@zyno-io/dk-server-foundation';
 
 class MyService {
     constructor(private hcSvc: HealthcheckService) {
@@ -39,11 +39,11 @@ When a database class is passed to `createApp()`, a database health check is aut
 
 ## `HealthcheckService`
 
-| Method                                       | Description                                                                                         |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `register(name, fn: () => Promise<void>)`    | Register a named health check function. Throw to indicate failure.                                  |
-| `check()`                                    | Run all registered health checks. Throws on first failure.                                          |
-| `checkIndividual()`                          | Run all checks and return per-check results: `{ name, status: 'ok' \| 'error', error? }[]`.        |
+| Method                                    | Description                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `register(name, fn: () => Promise<void>)` | Register a named health check function. Throw to indicate failure.                          |
+| `check()`                                 | Run all registered health checks. Throws on first failure.                                  |
+| `checkIndividual()`                       | Run all checks and return per-check results: `{ name, status: 'ok' \| 'error', error? }[]`. |
 
 ## Health Module
 

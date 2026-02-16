@@ -190,7 +190,7 @@ The new syntax only requires the **prefix** (e.g., `'uEcho'`, `'dNotify'`) inste
 
 ## Type Definitions for Frontend Clients
 
-If you're implementing this in a frontend client without access to `@signal24/dk-server-foundation`, add these type helpers to your codebase:
+If you're implementing this in a frontend client without access to `@zyno-io/dk-server-foundation`, add these type helpers to your codebase:
 
 ```typescript
 /**

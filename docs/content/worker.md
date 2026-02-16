@@ -19,7 +19,7 @@ This registers the job runner, queue registry, and CLI commands. In development,
 ## Defining Jobs
 
 ```typescript
-import { BaseJob, WorkerJob } from '@signal24/dk-server-foundation';
+import { BaseJob, WorkerJob } from '@zyno-io/dk-server-foundation';
 
 @WorkerJob()
 class SendEmailJob extends BaseJob<{ to: string; subject: string; body: string }> {
@@ -83,7 +83,7 @@ Abstract base class for all jobs.
 ## Queueing Jobs
 
 ```typescript
-import { WorkerService } from '@signal24/dk-server-foundation';
+import { WorkerService } from '@zyno-io/dk-server-foundation';
 
 class OrderService {
     constructor(private workerSvc: WorkerService) {}
@@ -155,7 +155,7 @@ The recorder uses `LeaderService` (Redis-based leader election) so that when mul
 The `WorkerQueueRegistry` manages BullMQ queue instances as singletons:
 
 ```typescript
-import { WorkerQueueRegistry } from '@signal24/dk-server-foundation';
+import { WorkerQueueRegistry } from '@zyno-io/dk-server-foundation';
 
 const queue = WorkerQueueRegistry.getQueue('default');
 const defaultQueue = WorkerQueueRegistry.getDefaultQueue();

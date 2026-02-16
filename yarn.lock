@@ -2243,113 +2243,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@signal24/config@npm:^1.9.2":
-  version: 1.9.2
-  resolution: "@signal24/config@npm:1.9.2"
-  dependencies:
-    commander: "npm:^14.0.0"
-    dotenv: "npm:^16.5.0"
-  bin:
-    config-cli: dist/cli.js
-  checksum: 10c0/663f6c3481833ba4ef712e2a336e44212b472ee16939f0b3802217b5def91c562d22e70e1964b852edbf7c3585a05fc9ce67110167798578d16c86e3b86a9e25
-  languageName: node
-  linkType: hard
-
-"@signal24/dk-server-foundation@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "@signal24/dk-server-foundation@workspace:."
-  dependencies:
-    "@bufbuild/protobuf": "npm:^2.11.0"
-    "@deepkit/app": "npm:1.0.19"
-    "@deepkit/broker": "npm:1.0.19"
-    "@deepkit/bson": "npm:1.0.19"
-    "@deepkit/core": "npm:1.0.19"
-    "@deepkit/core-rxjs": "npm:1.0.19"
-    "@deepkit/event": "npm:1.0.19"
-    "@deepkit/filesystem": "npm:1.0.19"
-    "@deepkit/framework": "npm:1.0.19"
-    "@deepkit/http": "npm:1.0.19"
-    "@deepkit/injector": "npm:1.0.19"
-    "@deepkit/logger": "npm:1.0.19"
-    "@deepkit/mysql": "npm:1.0.19"
-    "@deepkit/orm": "npm:1.0.19"
-    "@deepkit/postgres": "npm:1.0.19"
-    "@deepkit/rpc": "npm:1.0.19"
-    "@deepkit/rpc-tcp": "npm:1.0.19"
-    "@deepkit/sql": "npm:1.0.19"
-    "@deepkit/stopwatch": "npm:1.0.19"
-    "@deepkit/template": "npm:1.0.19"
-    "@deepkit/type": "npm:1.0.19"
-    "@deepkit/type-compiler": "npm:1.0.19"
-    "@deepkit/workflow": "npm:1.0.19"
-    "@jenniferplusplus/opentelemetry-instrumentation-bullmq": "npm:^0.5.1"
-    "@opentelemetry/api": "npm:^1.9.0"
-    "@opentelemetry/exporter-metrics-otlp-http": "npm:^0.212.0"
-    "@opentelemetry/exporter-prometheus": "npm:^0.212.0"
-    "@opentelemetry/exporter-trace-otlp-http": "npm:^0.212.0"
-    "@opentelemetry/instrumentation": "npm:^0.212.0"
-    "@opentelemetry/instrumentation-dns": "npm:^0.54.0"
-    "@opentelemetry/instrumentation-http": "npm:^0.212.0"
-    "@opentelemetry/instrumentation-ioredis": "npm:^0.59.0"
-    "@opentelemetry/instrumentation-mysql": "npm:^0.57.0"
-    "@opentelemetry/instrumentation-undici": "npm:^0.21.0"
-    "@opentelemetry/node": "npm:^0.24.0"
-    "@opentelemetry/resources": "npm:^2.5.1"
-    "@opentelemetry/sdk-metrics": "npm:^2.5.1"
-    "@opentelemetry/sdk-node": "npm:^0.212.0"
-    "@opentelemetry/sdk-trace-base": "npm:^2.5.1"
-    "@opentelemetry/sdk-trace-node": "npm:^2.5.1"
-    "@opentelemetry/semantic-conventions": "npm:^1.39.0"
-    "@sentry/node": "npm:^10.38.0"
-    "@signal24/config": "npm:^1.9.2"
-    "@types/bcrypt": "npm:^6.0.0"
-    "@types/debug": "npm:^4.1.12"
-    "@types/formidable": "npm:^3.4.6"
-    "@types/google-libphonenumber": "npm:^7.4.30"
-    "@types/lodash": "npm:^4.17.23"
-    "@types/node": "npm:^25.2.3"
-    "@types/nodemailer": "npm:^7"
-    bcrypt: "npm:^6.0.0"
-    bullmq: "npm:^5.69.2"
-    date-fns: "npm:^4.1.0"
-    debug: "npm:^4.4.3"
-    deepkit-openapi-core: "npm:^0.0.9"
-    fast-jwt: "npm:^6.1.0"
-    google-libphonenumber: "npm:^3.2.44"
-    ioredis: "npm:^5.9.3"
-    lefthook: "npm:^2.1.1"
-    lodash: "npm:^4.17.23"
-    mariadb: "npm:^3.4.5"
-    nodemailer: "npm:^8.0.1"
-    npm-run-all: "npm:^4.1.5"
-    opentelemetry-node-metrics: "npm:^3.0.0"
-    oxlint: "npm:^1.47.0"
-    patch-package: "npm:^8.0.1"
-    pino: "npm:^10.3.1"
-    pino-pretty: "npm:^13.1.3"
-    postmark: "npm:^4.0.5"
-    prettier: "npm:^3.8.1"
-    rxjs: "npm:~7.8.2"
-    send: "npm:^1.2.1"
-    tiny-glob: "npm:^0.2.9"
-    ts-essentials: "npm:^10.1.1"
-    ts-node: "npm:^10.9.2"
-    ts-proto: "npm:^2.11.2"
-    tslib: "npm:^2.8.1"
-    type-fest: "npm:^5.4.4"
-    typescript: "npm:~5.9"
-    uuidv7: "npm:^1.1.0"
-    ws: "npm:^8.19.0"
-    yaml: "npm:^2.8.2"
-  bin:
-    dksf-dev: ./dist/src/cli/dksf-dev.js
-    dksf-gen-proto: ./dist/src/cli/dksf-gen-proto.js
-    dksf-install: ./dist/src/cli/dksf-install.js
-    dksf-test: ./dist/src/cli/dksf-test.js
-    dksf-update: ./dist/src/cli/dksf-update.js
-  languageName: unknown
-  linkType: soft
-
 "@tokenizer/token@npm:^0.3.0":
   version: 0.3.0
   resolution: "@tokenizer/token@npm:0.3.0"
@@ -2514,11 +2407,11 @@ __metadata:
   linkType: hard
 
 "@types/nodemailer@npm:^7":
-  version: 7.0.9
-  resolution: "@types/nodemailer@npm:7.0.9"
+  version: 7.0.10
+  resolution: "@types/nodemailer@npm:7.0.10"
   dependencies:
     "@types/node": "npm:*"
-  checksum: 10c0/8751a0fbad2fd3e5c7c8ae66b13c2581c71a272c6e8da81c2f50e1d55bd49093033b3507750b1a7b2ee9fedae69cbb533f8924d366e3deaa9f7556d2adcc2b6b
+  checksum: 10c0/14e4389a71a154cad898c6ad21fbf12309f86fa504c6d11bf0911190697164f1c3b0c0d9f6cb425c189af73137cc49eb10dbb41574174bf822cfe37755b87c03
   languageName: node
   linkType: hard
 
@@ -2620,6 +2513,113 @@ __metadata:
   checksum: 10c0/0bfa50a3d756623d1f3409bc23f225a1d069424dbc77c6fd2f14fb377390cd57ec703dc70286e081c564be9051ead9ba85d81d66a3e68eeb6eb506d4e0c0fbda
   languageName: node
   linkType: hard
+
+"@zyno-io/config@npm:^1.10.0":
+  version: 1.10.0
+  resolution: "@zyno-io/config@npm:1.10.0"
+  dependencies:
+    commander: "npm:^14.0.3"
+    dotenv: "npm:^17.3.1"
+  bin:
+    config-cli: dist/cli.js
+  checksum: 10c0/668d36405fe12707d6dba93d6316f74b963d2ff3000e4c53c5de5f2955d8c714dd12abd227937a370b3377ff1fb789614f11f1e29eddccc43927a1c69ee0c651
+  languageName: node
+  linkType: hard
+
+"@zyno-io/dk-server-foundation@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@zyno-io/dk-server-foundation@workspace:."
+  dependencies:
+    "@bufbuild/protobuf": "npm:^2.11.0"
+    "@deepkit/app": "npm:1.0.19"
+    "@deepkit/broker": "npm:1.0.19"
+    "@deepkit/bson": "npm:1.0.19"
+    "@deepkit/core": "npm:1.0.19"
+    "@deepkit/core-rxjs": "npm:1.0.19"
+    "@deepkit/event": "npm:1.0.19"
+    "@deepkit/filesystem": "npm:1.0.19"
+    "@deepkit/framework": "npm:1.0.19"
+    "@deepkit/http": "npm:1.0.19"
+    "@deepkit/injector": "npm:1.0.19"
+    "@deepkit/logger": "npm:1.0.19"
+    "@deepkit/mysql": "npm:1.0.19"
+    "@deepkit/orm": "npm:1.0.19"
+    "@deepkit/postgres": "npm:1.0.19"
+    "@deepkit/rpc": "npm:1.0.19"
+    "@deepkit/rpc-tcp": "npm:1.0.19"
+    "@deepkit/sql": "npm:1.0.19"
+    "@deepkit/stopwatch": "npm:1.0.19"
+    "@deepkit/template": "npm:1.0.19"
+    "@deepkit/type": "npm:1.0.19"
+    "@deepkit/type-compiler": "npm:1.0.19"
+    "@deepkit/workflow": "npm:1.0.19"
+    "@jenniferplusplus/opentelemetry-instrumentation-bullmq": "npm:^0.5.1"
+    "@opentelemetry/api": "npm:^1.9.0"
+    "@opentelemetry/exporter-metrics-otlp-http": "npm:^0.212.0"
+    "@opentelemetry/exporter-prometheus": "npm:^0.212.0"
+    "@opentelemetry/exporter-trace-otlp-http": "npm:^0.212.0"
+    "@opentelemetry/instrumentation": "npm:^0.212.0"
+    "@opentelemetry/instrumentation-dns": "npm:^0.54.0"
+    "@opentelemetry/instrumentation-http": "npm:^0.212.0"
+    "@opentelemetry/instrumentation-ioredis": "npm:^0.59.0"
+    "@opentelemetry/instrumentation-mysql": "npm:^0.57.0"
+    "@opentelemetry/instrumentation-undici": "npm:^0.21.0"
+    "@opentelemetry/node": "npm:^0.24.0"
+    "@opentelemetry/resources": "npm:^2.5.1"
+    "@opentelemetry/sdk-metrics": "npm:^2.5.1"
+    "@opentelemetry/sdk-node": "npm:^0.212.0"
+    "@opentelemetry/sdk-trace-base": "npm:^2.5.1"
+    "@opentelemetry/sdk-trace-node": "npm:^2.5.1"
+    "@opentelemetry/semantic-conventions": "npm:^1.39.0"
+    "@sentry/node": "npm:^10.38.0"
+    "@types/bcrypt": "npm:^6.0.0"
+    "@types/debug": "npm:^4.1.12"
+    "@types/formidable": "npm:^3.4.6"
+    "@types/google-libphonenumber": "npm:^7.4.30"
+    "@types/lodash": "npm:^4.17.23"
+    "@types/node": "npm:^25.2.3"
+    "@types/nodemailer": "npm:^7"
+    "@zyno-io/config": "npm:^1.10.0"
+    bcrypt: "npm:^6.0.0"
+    bullmq: "npm:^5.69.2"
+    date-fns: "npm:^4.1.0"
+    debug: "npm:^4.4.3"
+    deepkit-openapi-core: "npm:^0.0.9"
+    fast-jwt: "npm:^6.1.0"
+    google-libphonenumber: "npm:^3.2.44"
+    ioredis: "npm:^5.9.3"
+    lefthook: "npm:^2.1.1"
+    lodash: "npm:^4.17.23"
+    mariadb: "npm:^3.4.5"
+    nodemailer: "npm:^8.0.1"
+    npm-run-all: "npm:^4.1.5"
+    opentelemetry-node-metrics: "npm:^3.0.0"
+    oxlint: "npm:^1.47.0"
+    patch-package: "npm:^8.0.1"
+    pino: "npm:^10.3.1"
+    pino-pretty: "npm:^13.1.3"
+    postmark: "npm:^4.0.5"
+    prettier: "npm:^3.8.1"
+    rxjs: "npm:~7.8.2"
+    send: "npm:^1.2.1"
+    tiny-glob: "npm:^0.2.9"
+    ts-essentials: "npm:^10.1.1"
+    ts-node: "npm:^10.9.2"
+    ts-proto: "npm:^2.11.2"
+    tslib: "npm:^2.8.1"
+    type-fest: "npm:^5.4.4"
+    typescript: "npm:~5.9"
+    uuidv7: "npm:^1.1.0"
+    ws: "npm:^8.19.0"
+    yaml: "npm:^2.8.2"
+  bin:
+    dksf-dev: ./dist/src/cli/dksf-dev.js
+    dksf-gen-proto: ./dist/src/cli/dksf-gen-proto.js
+    dksf-install: ./dist/src/cli/dksf-install.js
+    dksf-test: ./dist/src/cli/dksf-test.js
+    dksf-update: ./dist/src/cli/dksf-update.js
+  languageName: unknown
+  linkType: soft
 
 "abbrev@npm:^4.0.0":
   version: 4.0.0
@@ -3155,7 +3155,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^14.0.0":
+"commander@npm:^14.0.3":
   version: 14.0.3
   resolution: "commander@npm:14.0.3"
   checksum: 10c0/755652564bbf56ff2ff083313912b326450d3f8d8c85f4b71416539c9a05c3c67dbd206821ca72635bf6b160e2afdefcb458e86b317827d5cb333b69ce7f1a24
@@ -3436,10 +3436,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.5.0":
-  version: 16.6.1
-  resolution: "dotenv@npm:16.6.1"
-  checksum: 10c0/15ce56608326ea0d1d9414a5c8ee6dcf0fffc79d2c16422b4ac2268e7e2d76ff5a572d37ffe747c377de12005f14b3cc22361e79fc7f1061cce81f77d2c973dc
+"dotenv@npm:^17.3.1":
+  version: 17.3.1
+  resolution: "dotenv@npm:17.3.1"
+  checksum: 10c0/c78e0c2d5a549c751e544cc60e2b95e7cb67e0c551f42e094d161c6b297aa44b630a3c2dcacf5569e529a6c2a6b84e2ab9be8d37b299d425df5a18b81ce4a35f
   languageName: node
   linkType: hard
 
@@ -6083,11 +6083,11 @@ __metadata:
   linkType: hard
 
 "qs@npm:^6.14.0":
-  version: 6.14.2
-  resolution: "qs@npm:6.14.2"
+  version: 6.15.0
+  resolution: "qs@npm:6.15.0"
   dependencies:
     side-channel: "npm:^1.1.0"
-  checksum: 10c0/646110124476fc9acf3c80994c8c3a0600cbad06a4ede1c9e93341006e8426d64e85e048baf8f0c4995f0f1bf0f37d1f3acc5ec1455850b81978792969a60ef6
+  checksum: 10c0/ff341078a78a991d8a48b4524d52949211447b4b1ad907f489cac0770cbc346a28e47304455c0320e5fb000f8762d64b03331e3b71865f663bf351bcba8cdb4b
   languageName: node
   linkType: hard
 
@@ -6850,15 +6850,15 @@ __metadata:
   linkType: hard
 
 "tar@npm:^7.5.4":
-  version: 7.5.7
-  resolution: "tar@npm:7.5.7"
+  version: 7.5.9
+  resolution: "tar@npm:7.5.9"
   dependencies:
     "@isaacs/fs-minipass": "npm:^4.0.0"
     chownr: "npm:^3.0.0"
     minipass: "npm:^7.1.2"
     minizlib: "npm:^3.1.0"
     yallist: "npm:^5.0.0"
-  checksum: 10c0/51f261afc437e1112c3e7919478d6176ea83f7f7727864d8c2cce10f0b03a631d1911644a567348c3063c45abdae39718ba97abb073d22aa3538b9a53ae1e31c
+  checksum: 10c0/e870beb1b2477135ca2abe86b2d18f7b35d0a4e3a37bbc523d3b8f7adca268dfab543f26528a431d569897f8c53a7cac745cdfbc4411c2f89aeeacc652b81b0a
   languageName: node
   linkType: hard
 

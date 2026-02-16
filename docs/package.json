@@ -1,5 +1,5 @@
 {
-    "name": "@signal24/dk-server-foundation-docs",
+    "name": "@zyno-io/dk-server-foundation-docs",
     "private": true,
     "scripts": {
         "dev": "vitepress dev",

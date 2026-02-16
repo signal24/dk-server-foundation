@@ -1,6 +1,6 @@
 import { AppModule } from '@deepkit/app';
 import { ReflectionClass } from '@deepkit/type';
-import { loadConfig } from '@signal24/config';
+import { loadConfig } from '@zyno-io/config';
 import { existsSync } from 'fs';
 import { compact } from 'lodash';
 

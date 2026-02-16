@@ -71,7 +71,7 @@ Options:
 ## Server
 
 ```typescript
-import { SrpcServer } from '@signal24/dk-server-foundation';
+import { SrpcServer } from '@zyno-io/dk-server-foundation';
 import { ClientMessage, ServerMessage } from './generated/proto/my-service';
 
 const server = new SrpcServer({
@@ -154,7 +154,7 @@ Configure via `SRPC_AUTH_SECRET` and `SRPC_AUTH_CLOCK_DRIFT_MS` (default: 30 sec
 ## Client
 
 ```typescript
-import { SrpcClient } from '@signal24/dk-server-foundation';
+import { SrpcClient } from '@zyno-io/dk-server-foundation';
 import { ClientMessage, ServerMessage } from './generated/proto/my-service';
 
 const client = new SrpcClient(
@@ -247,7 +247,7 @@ type SrpcDisconnectCause = 'disconnect' | 'duplicate' | 'timeout' | 'badArg';
 ## Error Handling
 
 ```typescript
-import { SrpcError } from '@signal24/dk-server-foundation';
+import { SrpcError } from '@zyno-io/dk-server-foundation';
 
 // Throw user-facing errors in handlers
 throw new SrpcError('Invalid input', true); // isUserError: true

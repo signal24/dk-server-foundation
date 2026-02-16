@@ -1,15 +1,15 @@
-# @signal24/dk-server-foundation
+# @zyno-io/dk-server-foundation
 
 A TypeScript foundation library built on top of the [Deepkit framework](https://deepkit.io) for building server applications. Provides opinionated abstractions and utilities for database management, HTTP handling, authentication, background jobs, RPC, distributed systems, and observability.
 
-📚 **[Documentation Site](https://signal24.github.io/dk-server-foundation/)** | 🚀 **[Getting Started](./docs/getting-started.md)**
+📚 **[Documentation Site](https://zyno-io.github.io/dk-server-foundation/)** | 🚀 **[Getting Started](./docs/getting-started.md)**
 
 ## Install
 
 ```bash
-npm install @signal24/dk-server-foundation
+npm install @zyno-io/dk-server-foundation
 # or
-yarn add @signal24/dk-server-foundation
+yarn add @zyno-io/dk-server-foundation
 ```
 
 The postinstall script runs `deepkit-type-install` and `patch-package` automatically.
@@ -19,7 +19,7 @@ The postinstall script runs `deepkit-type-install` and `patch-package` automatic
 ## Quick Start
 
 ```typescript
-import { createApp, BaseAppConfig, createMySQLDatabase } from '@signal24/dk-server-foundation';
+import { createApp, BaseAppConfig, createMySQLDatabase } from '@zyno-io/dk-server-foundation';
 
 class AppConfig extends BaseAppConfig {
     MY_SETTING!: string;
@@ -84,7 +84,7 @@ Services decorated with `@AutoStart()` are instantiated at startup for establish
 Use `resolve()` (or its alias `r()`) to access any provider from the DI container outside of constructor injection:
 
 ```typescript
-import { r } from '@signal24/dk-server-foundation';
+import { r } from '@zyno-io/dk-server-foundation';
 const db = r(MyDatabase);
 ```
 
@@ -94,7 +94,7 @@ const db = r(MyDatabase);
 
 ```typescript
 import { eventDispatcher } from '@deepkit/event';
-import { onServerShutdownRequested } from '@signal24/dk-server-foundation';
+import { onServerShutdownRequested } from '@zyno-io/dk-server-foundation';
 
 class MyShutdownHandler {
     @eventDispatcher.listen(onServerShutdownRequested)
@@ -116,7 +116,7 @@ const app = createApp({
 
 ## Configuration
 
-Extend `BaseAppConfig` to define application settings. All properties are loaded from environment variables via `@signal24/config`. Properties ending in `_SECRET` are treated as secrets.
+Extend `BaseAppConfig` to define application settings. All properties are loaded from environment variables via `@zyno-io/config`. Properties ending in `_SECRET` are treated as secrets.
 
 ```typescript
 class AppConfig extends BaseAppConfig {
@@ -172,7 +172,7 @@ ts-node app.ts migration:run
 The `migration:create` command reads entity metadata via Deepkit reflection, introspects the database schema, and generates dialect-appropriate DDL covering: table creation/removal, column additions/removals/modifications/renames, index and foreign key changes, primary key changes, and PostgreSQL enum type management. Migration files use the `createMigration()` format:
 
 ```typescript
-import { createMigration } from '@signal24/dk-server-foundation';
+import { createMigration } from '@zyno-io/dk-server-foundation';
 
 export default createMigration(async db => {
     await db.rawExecute(`ALTER TABLE \`users\` ADD COLUMN \`bio\` varchar(500) NULL AFTER \`email\``);
@@ -304,11 +304,11 @@ OpenTelemetry auto-instrumentation for HTTP, database, Redis, DNS, and BullMQ. O
 
 ```typescript
 // Call before other imports
-import { init } from '@signal24/dk-server-foundation/telemetry/otel';
+import { init } from '@zyno-io/dk-server-foundation/telemetry/otel';
 init();
 
 // Manual spans
-import { withSpan } from '@signal24/dk-server-foundation';
+import { withSpan } from '@zyno-io/dk-server-foundation';
 await withSpan('processOrder', async () => {
     // traced operation
 });

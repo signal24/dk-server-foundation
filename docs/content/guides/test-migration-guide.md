@@ -1,6 +1,6 @@
 # Migrating from Jest to node:test (dk-server-foundation)
 
-This guide documents how to migrate a project that uses `@signal24/dk-server-foundation` from Jest to Node.js's built-in `node:test` runner. It is written as a reference for Claude and other AI assistants performing this migration.
+This guide documents how to migrate a project that uses `@zyno-io/dk-server-foundation` from Jest to Node.js's built-in `node:test` runner. It is written as a reference for Claude and other AI assistants performing this migration.
 
 ## Why node:test?
 
@@ -36,7 +36,7 @@ This compiles `tests/` into `dist/tests/` alongside `dist/src/`. Relative import
 Create `tests/shared/globalSetup.ts` with `setup` and `teardown` exports:
 
 ```typescript
-import { TestingHelpers } from '@signal24/dk-server-foundation';
+import { TestingHelpers } from '@zyno-io/dk-server-foundation';
 
 export async function setup() {
     TestingHelpers.setDefaultDatabaseConfig({
@@ -127,7 +127,7 @@ Rename any `beforeAll`/`afterAll` calls to `before`/`after`.
 #### `toMatchObject` — use `matchesObject` from dk-server-foundation
 
 ```typescript
-import { matchesObject } from '@signal24/dk-server-foundation/testing/expect';
+import { matchesObject } from '@zyno-io/dk-server-foundation/testing/expect';
 
 // Before
 expect(result).toMatchObject({ name: 'Fred', age: 30 });
@@ -139,7 +139,7 @@ matchesObject(result, { name: 'Fred', age: 30 });
 #### Asymmetric matchers — use helpers from dk-server-foundation
 
 ```typescript
-import { matchesObject, anyOf, stringContaining, arrayContaining, anything, objectContaining } from '@signal24/dk-server-foundation/testing/expect';
+import { matchesObject, anyOf, stringContaining, arrayContaining, anything, objectContaining } from '@zyno-io/dk-server-foundation/testing/expect';
 
 // Before
 expect(result).toMatchObject({ id: expect.any(Number), name: expect.stringContaining('Fred') });
@@ -160,7 +160,7 @@ Available matchers:
 #### Mock assertions — use `assertCalledWith`
 
 ```typescript
-import { assertCalledWith, anyOf } from '@signal24/dk-server-foundation/testing/expect';
+import { assertCalledWith, anyOf } from '@zyno-io/dk-server-foundation/testing/expect';
 
 // Before
 expect(mockFn).toHaveBeenCalledWith('arg1', expect.any(Number));
@@ -238,7 +238,7 @@ jest.doMock('../../src/app/resolver', () => ({
 const { MyModule } = await import('../../src/my-module');
 
 // After (node:test with CJS)
-import { TestingHelpers } from '@signal24/dk-server-foundation';
+import { TestingHelpers } from '@zyno-io/dk-server-foundation';
 
 TestingHelpers.resetSrcModuleCache();
 const resolver = require('../../src/app/resolver');
@@ -302,7 +302,7 @@ If your tests use Redis-backed features (mutex, cache, leader election, mesh), c
 
 ```typescript
 import { after } from 'node:test';
-import { disconnectAllRedis } from '@signal24/dk-server-foundation';
+import { disconnectAllRedis } from '@zyno-io/dk-server-foundation';
 
 after(async () => {
     await tf.stop();

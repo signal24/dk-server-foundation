@@ -1,14 +1,14 @@
 {
-    "name": "@signal24/dk-server-foundation",
+    "name": "@zyno-io/dk-server-foundation",
     "version": "0.0.0-dev",
     "description": "TypeScript server foundation built on the Deepkit framework",
     "repository": {
         "type": "git",
-        "url": "https://github.com/signal24/dk-server-foundation.git"
+        "url": "https://github.com/zyno-io/dk-server-foundation.git"
     },
-    "homepage": "https://github.com/signal24/dk-server-foundation#readme",
+    "homepage": "https://github.com/zyno-io/dk-server-foundation#readme",
     "bugs": {
-        "url": "https://github.com/signal24/dk-server-foundation/issues"
+        "url": "https://github.com/zyno-io/dk-server-foundation/issues"
     },
     "bin": {
         "dksf-dev": "./dist/src/cli/dksf-dev.js",
@@ -30,7 +30,11 @@
         "demoapp": "yarn build:devconsole && dksf-dev run -p tsconfig.demoapp.json dist/demoapp/bootstrap",
         "gen:proto": "ts-node src/cli/dksf-gen-proto.ts resources/proto/test.proto resources/proto/generated/test && ts-node src/cli/dksf-gen-proto.ts resources/proto/devconsole.proto resources/proto/generated/devconsole"
     },
-    "author": "Sean Ferguson <support@sgnl24.com>",
+    "author": {
+        "name": "Signal24 LLC dba Zyno Consulting",
+        "email": "support@zyno.io",
+        "url": "https://zyno.io"
+    },
     "license": "MIT",
     "dependencies": {
         "@bufbuild/protobuf": "^2.11.0",
@@ -75,8 +79,8 @@
         "@opentelemetry/sdk-trace-node": "^2.5.1",
         "@opentelemetry/semantic-conventions": "^1.39.0",
         "@sentry/node": "^10.38.0",
-        "@signal24/config": "^1.9.2",
         "@types/formidable": "^3.4.6",
+        "@zyno-io/config": "^1.10.0",
         "bcrypt": "^6.0.0",
         "bullmq": "^5.69.2",
         "date-fns": "^4.1.0",

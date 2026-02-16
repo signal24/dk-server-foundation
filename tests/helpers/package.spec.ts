@@ -25,7 +25,7 @@ describe('Package helpers', () => {
 
         it('has correct package name', () => {
             const pkg = getPackageJson();
-            assert.strictEqual(pkg?.name, '@signal24/dk-server-foundation');
+            assert.strictEqual(pkg?.name, '@zyno-io/dk-server-foundation');
         });
 
         it('has version field', () => {
@@ -38,7 +38,7 @@ describe('Package helpers', () => {
     describe('getPackageName', () => {
         it('returns package name', () => {
             const name = getPackageName();
-            assert.strictEqual(name, '@signal24/dk-server-foundation');
+            assert.strictEqual(name, '@zyno-io/dk-server-foundation');
         });
 
         it('returns same value on multiple calls', () => {

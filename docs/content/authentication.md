@@ -19,7 +19,7 @@ Configure via environment variables (see [Configuration](./configuration.md)):
 ### Generating Tokens
 
 ```typescript
-import { JWT } from '@signal24/dk-server-foundation';
+import { JWT } from '@zyno-io/dk-server-foundation';
 
 // Generate a JWT
 const token = await JWT.generate({
@@ -37,7 +37,7 @@ JWT.clearCookie(response);
 ### Verifying Tokens
 
 ```typescript
-import { JWT } from '@signal24/dk-server-foundation';
+import { JWT } from '@zyno-io/dk-server-foundation';
 
 // Verify signature and claims
 const result = await JWT.verify<{ role: string }>(token);
@@ -111,7 +111,7 @@ type JwtValidationResult<T> = ParsedJwt<T> | InvalidJwtValidationResult;
 `createAuthMiddleware()` returns a middleware class that validates the JWT and caches the entity ID. Extend it to add entity validation:
 
 ```typescript
-import { createAuthMiddleware, getEntityFromRequestJwt } from '@signal24/dk-server-foundation';
+import { createAuthMiddleware, getEntityFromRequestJwt } from '@zyno-io/dk-server-foundation';
 
 // Basic auth middleware - validates JWT has a subject
 const AuthMiddleware = createAuthMiddleware(User);
@@ -147,7 +147,7 @@ class UserController {
 ### Lower-Level Functions
 
 ```typescript
-import { getJwtFromRequest, getEntityFromRequestJwt, getEntityIdFromRequestJwt } from '@signal24/dk-server-foundation';
+import { getJwtFromRequest, getEntityFromRequestJwt, getEntityIdFromRequestJwt } from '@zyno-io/dk-server-foundation';
 
 // Get parsed JWT from request (cached)
 const jwt = await getJwtFromRequest(request);
@@ -164,7 +164,7 @@ const userId = await getEntityIdFromRequestJwt(request);
 Create middleware for HTTP Basic Authentication using the `AUTH_BASIC_SECRET` config value:
 
 ```typescript
-import { createBasicAuthMiddleware } from '@signal24/dk-server-foundation';
+import { createBasicAuthMiddleware } from '@zyno-io/dk-server-foundation';
 
 // Any username, password must match AUTH_BASIC_SECRET
 const basicAuth = createBasicAuthMiddleware();
@@ -181,7 +181,7 @@ async getStats() {
 ## Password Hashing
 
 ```typescript
-import { Auth } from '@signal24/dk-server-foundation';
+import { Auth } from '@zyno-io/dk-server-foundation';
 
 // Hash a password (bcrypt, default 10 rounds)
 const hash = await Auth.hashPassword('my-password');
@@ -196,7 +196,7 @@ const isValid = await Auth.verifyHash('my-password', hash);
 Generate secure tokens for password resets, email verification, etc.:
 
 ```typescript
-import { Auth } from '@signal24/dk-server-foundation';
+import { Auth } from '@zyno-io/dk-server-foundation';
 
 // Generate a reset token with embedded data
 const { token, verifier, generatedAt } = await Auth.generateResetToken({

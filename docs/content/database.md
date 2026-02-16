@@ -7,7 +7,7 @@ MySQL/MariaDB ORM layer extending Deepkit's database with transaction hooks, ses
 Use `createMySQLDatabase()` to define a database class with your entities:
 
 ```typescript
-import { createMySQLDatabase } from '@signal24/dk-server-foundation';
+import { createMySQLDatabase } from '@zyno-io/dk-server-foundation';
 
 class AppDB extends createMySQLDatabase({ enableLocksTable: true }, [User, Post, Comment]) {}
 ```
@@ -36,7 +36,7 @@ Type-safe entity creation with automatic inference of optional fields (auto-incr
 ### Create Without Persisting
 
 ```typescript
-import { createEntity, createEntities } from '@signal24/dk-server-foundation';
+import { createEntity, createEntities } from '@zyno-io/dk-server-foundation';
 
 const user = createEntity(User, { email: 'a@b.com', name: 'Alice' });
 const users = createEntities(User, [
@@ -50,7 +50,7 @@ const users = createEntities(User, [
 Entities are added to the session's unit of work but not flushed until `session.flush()`:
 
 ```typescript
-import { createQueuedEntity } from '@signal24/dk-server-foundation';
+import { createQueuedEntity } from '@zyno-io/dk-server-foundation';
 
 await db.transaction(async session => {
     const user = createQueuedEntity(User, { email: 'a@b.com', name: 'Alice' }, session);
@@ -62,7 +62,7 @@ await db.transaction(async session => {
 ### Create and Persist Immediately
 
 ```typescript
-import { createPersistedEntity, createPersistedEntities } from '@signal24/dk-server-foundation';
+import { createPersistedEntity, createPersistedEntities } from '@zyno-io/dk-server-foundation';
 
 const user = await createPersistedEntity(User, { email: 'a@b.com', name: 'Alice' }, session);
 ```
@@ -70,7 +70,7 @@ const user = await createPersistedEntity(User, { email: 'a@b.com', name: 'Alice'
 ### Persist Existing Entities
 
 ```typescript
-import { persistEntity, persistEntities } from '@signal24/dk-server-foundation';
+import { persistEntity, persistEntities } from '@zyno-io/dk-server-foundation';
 
 const user = createEntity(User, { email: 'a@b.com', name: 'Alice' });
 await persistEntity(user, session);
@@ -79,7 +79,7 @@ await persistEntity(user, session);
 ## Entity Retrieval
 
 ```typescript
-import { getEntityOr404, getEntityOrUndefined, getEntity, entityExists } from '@signal24/dk-server-foundation';
+import { getEntityOr404, getEntityOrUndefined, getEntity, entityExists } from '@zyno-io/dk-server-foundation';
 
 // Throws HttpNotFoundError if not found
 const user = await getEntityOr404(User, { id: 1 });
@@ -204,7 +204,7 @@ import {
     getFieldOriginal,
     getEntityOriginal,
     revertDirtyEntity
-} from '@signal24/dk-server-foundation';
+} from '@zyno-io/dk-server-foundation';
 
 user.name = 'Bob';
 
@@ -230,7 +230,7 @@ revertDirtyEntity(user);
 Load entities indexed by a field:
 
 ```typescript
-import { getKeyedEntities, getKeyedGroupedEntities, getEntitiesById } from '@signal24/dk-server-foundation';
+import { getKeyedEntities, getKeyedGroupedEntities, getEntitiesById } from '@zyno-io/dk-server-foundation';
 
 // Returns { [userId]: User }
 const usersById = await getKeyedEntities({
@@ -259,7 +259,7 @@ const users = await getEntitiesById({
 Resolve one-to-one/many-to-one and many-to-many relationships:
 
 ```typescript
-import { resolveRelated, resolveRelatedByPivot } from '@signal24/dk-server-foundation';
+import { resolveRelated, resolveRelatedByPivot } from '@zyno-io/dk-server-foundation';
 
 // Many-to-one: attach department to each user
 await resolveRelated({
@@ -290,7 +290,7 @@ await resolveRelatedByPivot({
 ### Coordinate (POINT)
 
 ```typescript
-import { Coordinate, MySQLCoordinate, NullableMySQLCoordinate } from '@signal24/dk-server-foundation';
+import { Coordinate, MySQLCoordinate, NullableMySQLCoordinate } from '@zyno-io/dk-server-foundation';
 
 class Location {
     coords!: MySQLCoordinate; // NOT NULL POINT
@@ -301,7 +301,7 @@ class Location {
 ### DateString
 
 ```typescript
-import { DateString } from '@signal24/dk-server-foundation';
+import { DateString } from '@zyno-io/dk-server-foundation';
 
 class Event {
     date!: DateString; // MySQL DATE column, stored as 'YYYY-MM-DD'
@@ -311,7 +311,7 @@ class Event {
 ### UuidString
 
 ```typescript
-import { UuidString } from '@signal24/dk-server-foundation';
+import { UuidString } from '@zyno-io/dk-server-foundation';
 
 class Resource {
     id!: UuidString; // Type annotation for UUID fields
@@ -321,7 +321,7 @@ class Resource {
 ### Length
 
 ```typescript
-import { Length } from '@signal24/dk-server-foundation';
+import { Length } from '@zyno-io/dk-server-foundation';
 
 class Token {
     code!: Length<6>; // Validated fixed-length string
@@ -333,7 +333,7 @@ class Token {
 Mark fields that have application-level defaults so they become optional in `createEntity()`:
 
 ```typescript
-import { HasDefault } from '@signal24/dk-server-foundation';
+import { HasDefault } from '@zyno-io/dk-server-foundation';
 
 class User {
     role!: string & HasDefault; // Optional in createEntity()
@@ -360,7 +360,7 @@ It detects: table creation/removal, column additions/removals/modifications/rena
 
 ```typescript
 // src/migrations/20240101_120000_add_users.ts
-import { createMigration } from '@signal24/dk-server-foundation';
+import { createMigration } from '@zyno-io/dk-server-foundation';
 
 export default createMigration(async db => {
     await db.rawExecute(sql`
@@ -380,7 +380,7 @@ export default createMigration(async db => {
 node app.js migration:run
 
 # Programmatically
-import { runMigrations } from '@signal24/dk-server-foundation';
+import { runMigrations } from '@zyno-io/dk-server-foundation';
 await runMigrations();
 ```
 
@@ -402,14 +402,14 @@ node app.js migration:characters [charset] [collation]
 Or programmatically:
 
 ```typescript
-import { standardizeDbCollation } from '@signal24/dk-server-foundation';
+import { standardizeDbCollation } from '@zyno-io/dk-server-foundation';
 await standardizeDbCollation(db);
 ```
 
 ## Entity Utility Functions
 
 ```typescript
-import { getPKFieldForEntity, getEntityFields, logSql } from '@signal24/dk-server-foundation';
+import { getPKFieldForEntity, getEntityFields, logSql } from '@zyno-io/dk-server-foundation';
 
 // Get primary key field name
 const pk = getPKFieldForEntity(User); // 'id'

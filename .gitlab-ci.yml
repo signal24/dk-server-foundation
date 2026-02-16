@@ -111,5 +111,5 @@ mirror:
     mkdir ~/.ssh
     echo $GITHUB_SSH_KEY_B64 | base64 -d > ~/.ssh/id_ed25519
     chmod 600 ~/.ssh/id_ed25519
-    git remote add github git@github.com:signal24/dk-server-foundation.git
+    git remote add github git@github.com:zyno-io/dk-server-foundation.git
     git push -u github HEAD:main --force
