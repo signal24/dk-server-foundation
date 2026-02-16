@@ -83,7 +83,7 @@ Behavior:
 
 #### `migration:reset`
 
-Generate a single base migration from the current schema:
+Generate a single base migration from entity definitions:
 
 ```bash
 node app.js migration:reset
@@ -91,11 +91,12 @@ node app.js migration:reset
 
 Behavior:
 
-1. Creates the migrations directory if missing
+1. Creates the `src/migrations/` directory if missing
 2. Removes all existing `.ts` migration files
-3. Runs `SHOW CREATE TABLE` for all registered entities
-4. Generates `00000000_000000_base.ts` with all CREATE statements
-5. Skips internal tables (prefixed with `_`)
+3. Reads entity schema from code definitions (using the same entity-reader as `migration:create`)
+4. Generates DDL by treating all entity tables as new (using the same DDL generator as `migration:create`)
+5. Writes `00000000_000000_base.ts` with all CREATE statements
+6. Skips internal tables (prefixed with `_`)
 
 #### `migration:characters`
 
@@ -209,6 +210,29 @@ dksf-dev migrate --debug
 If a `dksf-dev run` process is already running (detected via the coordination state file), the clean+build step is skipped. Otherwise, a full clean+build is performed first.
 
 Runs: `node --inspect=9226 . migration:run` (or `--inspect-brk=9226` with `--debug`).
+
+#### `dksf-dev migrate:create`
+
+Generates a migration by comparing entity definitions against the live database:
+
+```bash
+dksf-dev migrate:create
+dksf-dev migrate:create --debug
+dksf-dev migrate:create --non-interactive
+```
+
+Builds (if needed), then runs `node --inspect=9226 . migration:create`. Extra arguments (e.g., `--non-interactive`) are passed through.
+
+#### `dksf-dev migrate:reset`
+
+Removes all existing migrations and generates a single base migration from entity definitions:
+
+```bash
+dksf-dev migrate:reset
+dksf-dev migrate:reset --debug
+```
+
+Builds (if needed), then runs `node --inspect=9226 . migration:reset`.
 
 #### `dksf-dev test`
 

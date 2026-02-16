@@ -35,7 +35,15 @@ class MigPostEntity extends ActiveRecord {
     publishedAt!: DateString | null;
 }
 
-const testEntities = [MigUserEntity, MigPostEntity];
+@entity.name('mig_sessions')
+class MigSessionEntity extends ActiveRecord {
+    id!: number & AutoIncrement & PrimaryKey;
+    token!: string & MaxLength<255>;
+    userId?: string;
+    userName?: string & MaxLength<100>;
+}
+
+const testEntities = [MigUserEntity, MigPostEntity, MigSessionEntity];
 
 describe('migration:create integration', () => {
     forEachAdapter(({ createFacade, type: adapterType }) => {
@@ -111,8 +119,18 @@ describe('migration:create integration', () => {
                 assert.equal(publishedAtCol.type, 'date');
                 assert.equal(publishedAtCol.nullable, true);
 
-                // Check index on email
-                assert.ok(users.indexes.some(i => i.columns.includes('email')));
+                // Check index on email (should appear exactly once after deduplication)
+                const emailIndexes = users.indexes.filter(i => i.columns.includes('email'));
+                assert.equal(emailIndexes.length, 1, 'email index should appear exactly once (no duplicates)');
+
+                // Check optional (?) fields are nullable
+                const sessions = entitySchema.get('mig_sessions')!;
+                const userIdCol = sessions.columns.find(c => c.name === 'userId')!;
+                assert.equal(userIdCol.nullable, true, 'optional field userId? should be nullable');
+                const userNameCol = sessions.columns.find(c => c.name === 'userName')!;
+                assert.equal(userNameCol.nullable, true, 'optional field userName? should be nullable');
+                const tokenCol = sessions.columns.find(c => c.name === 'token')!;
+                assert.equal(tokenCol.nullable, false, 'required field token should not be nullable');
             });
 
             it('should skip internal tables', () => {

@@ -260,14 +260,14 @@ Database migrations (src/database/migration/):
 
 - Custom migration commands replace Deepkit's defaults
 - Use `runMigrations()` helper to execute migrations programmatically
-- Migrations stored in directory returned by `getMigrationsDir()`
+- Migrations stored in directory returned by `getMigrationsDir()` (runtime) or `getSourceMigrationsDir()` (always `src/migrations/`, used by `migration:create` and `migration:reset`)
 - Character set standardization via `standardizeDbCollation()` (MySQL-only; no-ops on PostgreSQL)
 
 ### Migration Commands
 
 - `migration:create` — Compares entity definitions against the live database and generates a migration file with the DDL to bring the DB in sync. Supports `--non-interactive` flag for CI. Both MySQL and PostgreSQL.
 - `migration:run` — Executes all pending migrations from the migrations directory
-- `migration:reset` — Removes all migrations and regenerates a base migration from the current database schema
+- `migration:reset` — Removes all migrations and regenerates a base migration from entity definitions (using the same entity-reader and DDL generator as `migration:create`)
 - `migration:characters` — Standardizes character set/collation to `utf8mb4_0900_ai_ci` (MySQL-only)
 
 ### Schema Migration Generator (`migration:create`)

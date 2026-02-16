@@ -3,7 +3,7 @@ import { SQLDatabaseAdapter } from '@deepkit/sql';
 
 import { DBProvider } from '../../../app/state';
 import { getAppConfig } from '../../../app/resolver';
-import { createLogger } from '../../../services';
+import { createLogger, pinoLogger } from '../../../services';
 import { getDialect } from '../../dialect';
 import { readEntitiesSchema } from './entity-reader';
 import { readAllTableNames, readDatabaseSchema } from './db-reader';
@@ -84,6 +84,8 @@ export class MigrationCreateCommand {
             }
 
             // Step 7: Prompt for description and generate file
+            pinoLogger.flush();
+            await new Promise(resolve => setTimeout(resolve, 100));
             const description = await promptMigrationDescription();
             const filePath = generateMigrationFile(statements, description);
             this.logger.info(`\nMigration file created: ${filePath}`);

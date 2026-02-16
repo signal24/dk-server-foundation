@@ -386,7 +386,7 @@ await runMigrations();
 
 ### Reset Migrations
 
-Generates a single base migration from the current schema:
+Removes all existing migrations and generates a single base migration from entity definitions:
 
 ```bash
 node app.js migration:reset

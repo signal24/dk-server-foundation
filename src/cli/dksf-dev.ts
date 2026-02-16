@@ -286,7 +286,7 @@ async function cmdRun(args: string[]): Promise<void> {
     });
 }
 
-function cmdMigrate(args: string[]): void {
+function cmdMigrate(subcmd: string, args: string[]): void {
     const debug = args.includes('--debug');
     const tsconfig = extractTsconfigArg(args) ?? 'tsconfig.json';
 
@@ -299,8 +299,15 @@ function cmdMigrate(args: string[]): void {
         console.log('Using existing dev build from another process.');
     }
 
+    const deepkitCmd = subcmd === 'create' ? 'migration:create' : subcmd === 'reset' ? 'migration:reset' : 'migration:run';
+    const childArgs = [deepkitCmd];
+    if (subcmd === 'create') {
+        const remaining = args.filter(a => a !== '--debug');
+        childArgs.push(...remaining);
+    }
+
     const inspectFlag = debug ? '--inspect-brk=9226' : '--inspect=9226';
-    const child = spawn(process.execPath, ['--enable-source-maps', inspectFlag, '.', 'migration:run'], {
+    const child = spawn(process.execPath, ['--enable-source-maps', inspectFlag, '.', ...childArgs], {
         stdio: 'inherit',
         cwd: projectDir
     });
@@ -362,7 +369,13 @@ async function main(): Promise<void> {
             await cmdRun(args);
             return;
         case 'migrate':
-            cmdMigrate(args);
+            cmdMigrate('run', args);
+            return;
+        case 'migrate:create':
+            cmdMigrate('create', args);
+            return;
+        case 'migrate:reset':
+            cmdMigrate('reset', args);
             return;
         case 'repl':
             cmdRepl(args);
@@ -378,6 +391,8 @@ Commands:
   build [--watch]              Clean and build (--watch for watch mode)
   run [--debug] [script] [--]  Clean, build, and start with node --watch
   migrate [--debug]            Clean, build (if needed), and run migrations
+  migrate:create [--debug]     Clean, build (if needed), and create a migration
+  migrate:reset [--debug]      Clean, build (if needed), and reset migrations
   repl [--debug]               Clean, build (if needed), and start a REPL
   test [--debug] [args...]     Clean, build tests, and run dksf-test
 

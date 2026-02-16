@@ -1,10 +1,10 @@
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import path from 'path';
 
-import { getMigrationsDir } from '../helpers';
+import { getSourceMigrationsDir } from '../helpers';
 
 export function generateMigrationFile(statements: string[], description: string): string {
-    const migrationsDir = getMigrationsDir();
+    const migrationsDir = getSourceMigrationsDir();
 
     if (!existsSync(migrationsDir)) {
         mkdirSync(migrationsDir, { recursive: true });
@@ -21,15 +21,21 @@ export function generateMigrationFile(statements: string[], description: string)
     return filePath;
 }
 
-function buildFileContent(statements: string[]): string {
-    const execLines = statements
-        .map(stmt => {
-            const escaped = stmt.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
-            return `    await db.rawExecute(\`${escaped}\`);`;
-        })
-        .join('\n');
-
+export function buildFileContent(statements: string[]): string {
+    const execLines = statements.map(formatStatement).join('\n');
     return `import { createMigration } from '@signal24/dk-server-foundation';\n\nexport default createMigration(async db => {\n${execLines}\n});\n`;
+}
+
+function formatStatement(stmt: string): string {
+    const escaped = stmt.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+    if (!escaped.includes('\n')) {
+        return `    await db.rawExecute(\`${escaped}\`);`;
+    }
+    const indented = escaped
+        .split('\n')
+        .map(line => `        ${line}`)
+        .join('\n');
+    return `    await db.rawExecute(\`\n${indented}\n    \`);`;
 }
 
 function formatTimestamp(date: Date): string {
@@ -39,8 +45,7 @@ function formatTimestamp(date: Date): string {
     const h = String(date.getUTCHours()).padStart(2, '0');
     const min = String(date.getUTCMinutes()).padStart(2, '0');
     const s = String(date.getUTCSeconds()).padStart(2, '0');
-    const ms = String(date.getUTCMilliseconds()).padStart(3, '0');
-    return `${y}${m}${d}_${h}${min}${s}${ms}`;
+    return `${y}${m}${d}_${h}${min}${s}`;
 }
 
 function slugify(text: string): string {

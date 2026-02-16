@@ -268,7 +268,8 @@ import { runMigrations } from './database';
 // Run all pending migrations using the application's configured database
 await runMigrations();
 
-// Migrations live in the directory returned by getMigrationsDir()
+// At runtime, migrations are read from getMigrationsDir() (src/ or dist/ depending on context)
+// migration:create and migration:reset always write to getSourceMigrationsDir() (src/migrations/)
 // Migration state is tracked in the database's migration table
 ```
 

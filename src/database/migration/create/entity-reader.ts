@@ -95,7 +95,16 @@ function readTableSchema(reflection: ReflectionClass<unknown>, tableName: string
         }
     }
 
-    return { name: tableName, columns, indexes, foreignKeys, skippedColumns };
+    // Deduplicate indexes by name (Deepkit stores property-level indexes
+    // both on the property and in reflection.indexes)
+    const seen = new Set<string>();
+    const dedupedIndexes = indexes.filter(idx => {
+        if (seen.has(idx.name)) return false;
+        seen.add(idx.name);
+        return true;
+    });
+
+    return { name: tableName, columns, indexes: dedupedIndexes, foreignKeys, skippedColumns };
 }
 
 function readColumn(prop: ReflectionProperty, ordinal: number, dialect: Dialect, tableName?: string): ColumnSchema | null {
@@ -109,7 +118,7 @@ function readColumn(prop: ReflectionProperty, ordinal: number, dialect: Dialect,
         size: resolved.size,
         scale: resolved.scale,
         unsigned: resolved.unsigned || false,
-        nullable: prop.isNullable(),
+        nullable: prop.isOptional() || prop.isNullable(),
         autoIncrement: prop.isAutoIncrement(),
         isPrimaryKey: prop.isPrimaryKey(),
         defaultValue: resolved.defaultValue,
@@ -163,7 +172,7 @@ function readReferenceColumn(
         size: resolved.size,
         scale: resolved.scale,
         unsigned: resolved.unsigned || false,
-        nullable: prop.isNullable(),
+        nullable: prop.isOptional() || prop.isNullable(),
         autoIncrement: false,
         isPrimaryKey: prop.isPrimaryKey(),
         ordinalPosition: ordinal
