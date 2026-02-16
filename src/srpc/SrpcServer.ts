@@ -9,6 +9,7 @@ import { uuid7 } from '../helpers';
 import { withLoggerContext } from '../services';
 import { getTraceContext, withRemoteSpan, withSpan } from '../telemetry';
 import { SrpcByteStream } from './SrpcByteStream';
+import { installWebSocketUpgradeHandler } from './WebSocketUpgradeHandler';
 import {
     BaseMessage,
     HandlerRequestData,
@@ -30,72 +31,6 @@ import {
 import { uuid } from '@deepkit/type';
 
 const StreamInfoSymbol = Symbol('srpc-info');
-const UpgradeClaimedSymbol = Symbol('srpc-upgrade-claimed');
-const _patchedServers = new WeakSet<import('http').Server>();
-
-/**
- * Monkey-patches `httpServer.emit` so that once an upgrade listener claims
- * a socket (by setting UpgradeClaimedSymbol), no further listeners are
- * invoked.  This prevents consumer @AutoStart services from destroying
- * sockets that an SrpcServer is already handling.
- *
- * Also installs a low-priority fallback that destroys any socket not
- * claimed by any handler (via setImmediate, after all sync work).
- */
-export function installUpgradeClaimHandling(httpServer: import('http').Server) {
-    if (_patchedServers.has(httpServer)) return;
-    _patchedServers.add(httpServer);
-
-    // Patch emit to stop propagation once a socket is claimed.
-    const originalEmit = httpServer.emit;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    httpServer.emit = function (this: import('http').Server, event: string | symbol, ...args: any[]): boolean {
-        if (event !== 'upgrade') {
-            return originalEmit.apply(this, [event, ...args]);
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const socket = args[1] as any;
-        const listeners = this.rawListeners('upgrade').slice();
-        for (const fn of listeners) {
-            (fn as Function).apply(this, args);
-            if (socket[UpgradeClaimedSymbol]) break;
-        }
-        return listeners.length > 0;
-    };
-
-    // Fallback: destroy sockets not claimed by any handler.
-    httpServer.on('upgrade', (_req, socket: import('net').Socket) => {
-        setImmediate(() => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (!(socket as any)[UpgradeClaimedSymbol] && !socket.destroyed) {
-                socket.write('HTTP/1.1 400 Bad Request\r\n\r\n');
-                socket.destroy();
-            }
-        });
-    });
-}
-
-/**
- * Returns `true` if the given socket has already been claimed by an
- * upgrade handler (via `markUpgradeClaimed`).
- */
-export function isUpgradeClaimed(socket: import('net').Socket): boolean {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return !!(socket as any)[UpgradeClaimedSymbol];
-}
-
-/**
- * Mark a socket as claimed so that `installUpgradeClaimHandling`'s
- * patched emit stops propagating the `'upgrade'` event to subsequent
- * listeners.  SrpcServer calls this automatically; consumer apps with
- * their own WebSocket upgrade logic can call it to participate in the
- * same claim protocol.
- */
-export function markUpgradeClaimed(socket: import('net').Socket): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (socket as any)[UpgradeClaimedSymbol] = true;
-}
 
 export class SrpcServer<
     TMeta extends SrpcMeta = SrpcMeta,
@@ -109,8 +44,6 @@ export class SrpcServer<
     private logger: ScopedLogger;
     private wsServer: WebSocket.Server;
     private httpServer: import('http').Server;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    private upgradeHandler: (...args: any[]) => void;
     private inboundType: SrpcMessageFns<TClientOutput>;
     private outboundType: SrpcMessageFns<TServerOutput>;
 
@@ -132,8 +65,8 @@ export class SrpcServer<
     constructor(private options: ISrpcServerOptions<TClientOutput, TServerOutput>) {
         const logLevel = options.logLevel ?? 'info';
         if (logLevel === false) {
-            const noop = (() => {}) as any;
-            this.logger = { info: noop, warn: noop, error: noop, debug: noop } as any;
+            const noop = (() => {}) as (...args: unknown[]) => void;
+            this.logger = { info: noop, warn: noop, error: noop, debug: noop } as unknown as ScopedLogger;
             options.debug = false;
         } else if (logLevel === 'debug') {
             const base = options.logger;
@@ -142,7 +75,7 @@ export class SrpcServer<
                 warn: base.warn.bind(base),
                 error: base.error.bind(base),
                 debug: base.debug.bind(base)
-            } as any;
+            } as unknown as ScopedLogger;
         } else {
             this.logger = options.logger;
         }
@@ -163,26 +96,12 @@ export class SrpcServer<
         this.wsServer = new WebSocket.Server({ noServer: true });
         this.wsServer.on('connection', this.attachConnection.bind(this));
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.upgradeHandler = (req: IncomingMessage, socket: any, head: Buffer) => {
-            const pathname = req.url?.split('?')[0];
-            if (pathname !== options.wsPath) return;
-
-            markUpgradeClaimed(socket);
-
-            this.verifyClient({ origin: '', secure: false, req }, (allowed, code, message) => {
-                if (!allowed) {
-                    socket.write(`HTTP/1.1 ${code ?? 403} ${message ?? 'Forbidden'}\r\n\r\n`);
-                    socket.destroy();
-                    return;
-                }
-                this.wsServer.handleUpgrade(req, socket, head, ws => {
-                    this.wsServer.emit('connection', ws, req);
-                });
-            });
-        };
-        this.httpServer.prependListener('upgrade', this.upgradeHandler);
-        installUpgradeClaimHandling(this.httpServer);
+        installWebSocketUpgradeHandler({
+            httpServer: this.httpServer,
+            wsPath: options.wsPath,
+            wsServer: this.wsServer,
+            verifyClient: this.verifyClient.bind(this)
+        });
 
         this.logger.info('WebSocket server listening', { path: options.wsPath });
 
@@ -402,7 +321,6 @@ export class SrpcServer<
 
     close() {
         clearInterval(this.inactivityCheckInterval);
-        this.httpServer.off('upgrade', this.upgradeHandler);
         for (const stream of this.streamsById.values()) {
             this.cleanupStream(stream, 'disconnect');
         }

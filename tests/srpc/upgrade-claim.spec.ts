@@ -2,148 +2,130 @@ import { describe, it, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'http';
 import { Socket } from 'net';
+import WebSocket from 'ws';
 
-import { installUpgradeClaimHandling, isUpgradeClaimed, markUpgradeClaimed } from '../../src/srpc/SrpcServer';
+import { installWebSocketUpgradeHandler } from '../../src/srpc/WebSocketUpgradeHandler';
 
-describe('upgrade claim handling', () => {
-    describe('isUpgradeClaimed / markUpgradeClaimed', () => {
-        it('returns false for an unmarked socket', () => {
-            const socket = new Socket();
-            assert.equal(isUpgradeClaimed(socket), false);
+describe('websocket upgrade handling', () => {
+    it('claims matched path upgrades before later listeners run', () => {
+        const server = createServer();
+        const consumerHandler = mock.fn();
+        server.on('upgrade', consumerHandler);
+
+        installWebSocketUpgradeHandler({
+            httpServer: server,
+            wsPath: '/ws',
+            wsServer: { handleUpgrade: mock.fn(), emit: mock.fn() } as any,
+            verifyClient: (_info, cb) => cb(false, 403, 'Forbidden')
         });
 
-        it('returns true after markUpgradeClaimed', () => {
-            const socket = new Socket();
-            markUpgradeClaimed(socket);
-            assert.equal(isUpgradeClaimed(socket), true);
-        });
+        const socket = new Socket();
+        socket.write = mock.fn(() => true) as any;
+        socket.destroy = mock.fn() as any;
+
+        server.emit('upgrade', { url: '/ws?x=1' }, socket, Buffer.alloc(0));
+
+        assert.equal(consumerHandler.mock.callCount(), 0);
     });
 
-    describe('installUpgradeClaimHandling', () => {
-        it('stops propagation after a listener claims the socket', () => {
-            const server = createServer();
-            installUpgradeClaimHandling(server);
+    it('allows unmatched upgrades to continue to later listeners', () => {
+        const server = createServer();
+        const consumerHandler = mock.fn();
 
-            const handlerA = mock.fn((_req: unknown, socket: Socket) => {
-                markUpgradeClaimed(socket);
-            });
-            const handlerB = mock.fn();
+        installWebSocketUpgradeHandler({
+            httpServer: server,
+            wsPath: '/ws',
+            wsServer: new WebSocket.Server({ noServer: true }),
+            verifyClient: (_info, cb) => cb(true)
+        });
+        server.on('upgrade', consumerHandler);
 
-            server.on('upgrade', handlerA);
-            server.on('upgrade', handlerB);
+        const socket = new Socket();
+        socket.write = mock.fn(() => true) as any;
+        socket.destroy = mock.fn() as any;
 
-            const socket = new Socket();
-            server.emit('upgrade', {}, socket, Buffer.alloc(0));
+        server.emit('upgrade', { url: '/other' }, socket, Buffer.alloc(0));
 
-            assert.equal(handlerA.mock.callCount(), 1);
-            assert.equal(handlerB.mock.callCount(), 0);
+        assert.equal(consumerHandler.mock.callCount(), 1);
+    });
+
+    it('rejects unclaimed upgrades via delayed fallback', async () => {
+        const server = createServer();
+
+        installWebSocketUpgradeHandler({
+            httpServer: server,
+            wsPath: '/ws',
+            wsServer: new WebSocket.Server({ noServer: true }),
+            verifyClient: (_info, cb) => cb(true),
+            unclaimedUpgradeRejectionDelayMs: 0
         });
 
-        it('propagates to all listeners when no one claims the socket', () => {
-            const server = createServer();
-            installUpgradeClaimHandling(server);
+        const socket = new Socket();
+        const destroyFn = mock.fn();
+        socket.write = mock.fn(() => true) as any;
+        socket.destroy = destroyFn as any;
 
-            const handlerA = mock.fn();
-            const handlerB = mock.fn();
+        server.emit('upgrade', { url: '/other' }, socket, Buffer.alloc(0));
+        await new Promise(resolve => setTimeout(resolve, 0));
 
-            server.on('upgrade', handlerA);
-            server.on('upgrade', handlerB);
+        assert.equal(destroyFn.mock.callCount(), 1);
+    });
 
-            const socket = new Socket();
-            server.emit('upgrade', {}, socket, Buffer.alloc(0));
+    it('cancels fallback rejection when a handler writes a 101 response', async () => {
+        const server = createServer();
+        const handlerB = mock.fn();
 
-            assert.equal(handlerA.mock.callCount(), 1);
-            assert.equal(handlerB.mock.callCount(), 1);
+        installWebSocketUpgradeHandler({
+            httpServer: server,
+            wsPath: '/ws',
+            wsServer: new WebSocket.Server({ noServer: true }),
+            verifyClient: (_info, cb) => cb(true),
+            unclaimedUpgradeRejectionDelayMs: 0
         });
 
-        it('does not affect non-upgrade events', () => {
-            const server = createServer();
-            installUpgradeClaimHandling(server);
+        server.on('upgrade', (_req: unknown, socket: Socket) => {
+            socket.write('HTTP/1.1 101 Switching Protocols\r\n\r\n');
+        });
+        server.on('upgrade', handlerB);
 
-            const handler = mock.fn();
-            server.on('request', handler);
+        const socket = new Socket();
+        socket.write = mock.fn(() => true) as any;
+        socket.destroy = mock.fn() as any;
 
-            server.emit('request', {}, {});
+        server.emit('upgrade', { url: '/other' }, socket, Buffer.alloc(0));
+        await new Promise(resolve => setTimeout(resolve, 0));
 
-            assert.equal(handler.mock.callCount(), 1);
+        assert.equal(handlerB.mock.callCount(), 0);
+    });
+
+    it('does not install duplicate handlers for the same path on one server', () => {
+        const server = createServer();
+        const wsServerA = { handleUpgrade: mock.fn(), emit: mock.fn() } as any;
+        const wsServerB = { handleUpgrade: mock.fn(), emit: mock.fn() } as any;
+        const verifyA = mock.fn((_info, cb) => cb(false, 403, 'Forbidden A'));
+        const verifyB = mock.fn((_info, cb) => cb(false, 403, 'Forbidden B'));
+
+        installWebSocketUpgradeHandler({
+            httpServer: server,
+            wsPath: '/ws',
+            wsServer: wsServerA,
+            verifyClient: verifyA
         });
 
-        it('is idempotent — calling twice does not double-patch', () => {
-            const server = createServer();
-            installUpgradeClaimHandling(server);
-            installUpgradeClaimHandling(server);
-
-            const handlerA = mock.fn((_req: unknown, socket: Socket) => {
-                markUpgradeClaimed(socket);
-            });
-            const handlerB = mock.fn();
-
-            server.on('upgrade', handlerA);
-            server.on('upgrade', handlerB);
-
-            const socket = new Socket();
-            server.emit('upgrade', {}, socket, Buffer.alloc(0));
-
-            // handlerA should be called exactly once (not twice from double-patch)
-            assert.equal(handlerA.mock.callCount(), 1);
-            assert.equal(handlerB.mock.callCount(), 0);
+        installWebSocketUpgradeHandler({
+            httpServer: server,
+            wsPath: '/ws',
+            wsServer: wsServerB,
+            verifyClient: verifyB
         });
 
-        it('destroys unclaimed sockets via fallback', async () => {
-            const server = createServer();
-            installUpgradeClaimHandling(server);
+        const socket = new Socket();
+        socket.write = mock.fn(() => true) as any;
+        socket.destroy = mock.fn() as any;
 
-            const socket = new Socket();
-            const destroyFn = mock.fn();
-            socket.destroy = destroyFn as any;
-            socket.write = mock.fn() as any; // prevent write errors on unconnected socket
+        server.emit('upgrade', { url: '/ws' }, socket, Buffer.alloc(0));
 
-            server.emit('upgrade', {}, socket, Buffer.alloc(0));
-
-            // Fallback uses setImmediate, so wait for it
-            await new Promise(resolve => setImmediate(resolve));
-
-            assert.equal(destroyFn.mock.callCount(), 1);
-        });
-
-        it('does not destroy claimed sockets via fallback', async () => {
-            const server = createServer();
-            installUpgradeClaimHandling(server);
-
-            server.on('upgrade', (_req: unknown, socket: Socket) => {
-                markUpgradeClaimed(socket);
-            });
-
-            const socket = new Socket();
-            const destroyFn = mock.fn();
-            socket.destroy = destroyFn as any;
-
-            server.emit('upgrade', {}, socket, Buffer.alloc(0));
-
-            await new Promise(resolve => setImmediate(resolve));
-
-            assert.equal(destroyFn.mock.callCount(), 0);
-        });
-
-        it('respects prependListener ordering', () => {
-            const server = createServer();
-
-            // Register a "consumer" handler first
-            const consumerHandler = mock.fn();
-            server.on('upgrade', consumerHandler);
-
-            // Then install claim handling + prepend an SrpcServer-like handler
-            installUpgradeClaimHandling(server);
-
-            server.prependListener('upgrade', (_req: unknown, socket: Socket) => {
-                markUpgradeClaimed(socket);
-            });
-
-            const socket = new Socket();
-            server.emit('upgrade', {}, socket, Buffer.alloc(0));
-
-            // Consumer handler should NOT have been called
-            assert.equal(consumerHandler.mock.callCount(), 0);
-        });
+        assert.equal(verifyA.mock.callCount(), 1);
+        assert.equal(verifyB.mock.callCount(), 0);
     });
 });
