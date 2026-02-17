@@ -346,8 +346,12 @@ function cmdTest(args: string[]): void {
     const tsconfig = extractTsconfigArg(args) ?? 'tsconfig.test.json';
     const testArgs = args.filter(a => a !== '--debug');
 
+    if (isDevRunning()) {
+        console.log('Skipping clean due to running dev server.');
+    } else {
+        clean();
+    }
     console.log('Building...');
-    clean();
     tsc(tsconfig);
     console.log('Build complete.');
 
