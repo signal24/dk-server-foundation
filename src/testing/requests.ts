@@ -34,7 +34,7 @@ export function installStandardHooks(tf: TestingFacade) {
 
 export function resetSrcModuleCache() {
     for (const key of Object.keys(require.cache)) {
-        if (key.includes('/dist/src/') || key.includes('/src/')) {
+        if (key.includes('/dist/') || key.includes('/src/')) {
             delete require.cache[key];
         }
     }

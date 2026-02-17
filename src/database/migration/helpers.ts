@@ -1,5 +1,9 @@
+import { existsSync } from 'node:fs';
+
 export function getMigrationsDir() {
-    return __filename.endsWith('.ts') && process.env.DKSF_FORCE_DIST_MIGRATIONS !== 'true' ? 'src/migrations' : 'dist/src/migrations';
+    if (__filename.endsWith('.ts') && process.env.DKSF_FORCE_DIST_MIGRATIONS !== 'true') return 'src/migrations';
+    if (existsSync('dist/src/migrations')) return 'dist/src/migrations';
+    return 'dist/migrations';
 }
 
 export function getSourceMigrationsDir() {

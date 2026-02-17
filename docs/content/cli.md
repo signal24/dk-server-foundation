@@ -303,7 +303,7 @@ Update utility for the library.
 
 ## Creating Migrations
 
-Migrations are TypeScript files in the `src/migrations/` directory (or `dist/src/migrations/` for compiled code):
+Migrations are TypeScript files in the `src/migrations/` directory (or `dist/migrations/` or `dist/src/migrations/` for compiled code):
 
 ```typescript
 // src/migrations/20240101_120000_add_users.ts
@@ -331,5 +331,5 @@ await runMigrations();
 ## Migration File Resolution
 
 - Running `.ts` files: looks in `src/migrations/`
-- Running `.js` files: looks in `dist/src/migrations/`
+- Running `.js` files: looks in `dist/migrations/` or `dist/src/migrations/`
 - Override with `DKSF_FORCE_DIST_MIGRATIONS=true` to always use `dist/`
