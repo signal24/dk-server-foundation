@@ -300,8 +300,25 @@ function setDefaultDatabaseConfig(config: MySQLConfig | PGConfig) {
 }
 
 async function cleanupTestDatabases(prefix?: string, except?: string) {
-    const dbNameRe = new RegExp(`^${prefix ?? 'test'}_\\d+_\\d+_\\d+$`);
+    const dbNameRe = new RegExp(`^${prefix ?? 'test'}_(\\d+)_(\\d+)_(\\d+)$`);
     const adapter = getTestDbAdapter();
+
+    function isProcessAlive(pid: number): boolean {
+        try {
+            process.kill(pid, 0);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    function shouldDrop(db: string): boolean {
+        if (db === except) return false;
+        const match = db.match(dbNameRe);
+        if (!match) return false;
+        const pid = parseInt(match[2]);
+        return !isProcessAlive(pid);
+    }
 
     if (adapter === 'postgres') {
         const pgAdapter = new PostgresDatabaseAdapter({
@@ -315,7 +332,7 @@ async function cleanupTestDatabases(prefix?: string, except?: string) {
         const result = await pgConn.execAndReturnAll(`SELECT datname AS "Database" FROM pg_database WHERE datistemplate = false`);
         const dbs = result.map((r: { Database: string }) => r.Database).filter((db: string) => dbNameRe.test(db));
         for (const db of dbs) {
-            if (db === except) continue;
+            if (!shouldDrop(db)) continue;
             await pgConn.run(`DROP DATABASE "${db}"`);
         }
         await pgConn.release();
@@ -334,7 +351,7 @@ async function cleanupTestDatabases(prefix?: string, except?: string) {
         const result = await dbConn.execAndReturnAll(`SHOW DATABASES`);
         const dbs = result.map((r: { Database: string }) => r.Database).filter((db: string) => dbNameRe.test(db));
         for (const db of dbs) {
-            if (db === except) continue;
+            if (!shouldDrop(db)) continue;
             await dbConn.run(`DROP DATABASE ${db}`);
         }
         await dbConn.release();
