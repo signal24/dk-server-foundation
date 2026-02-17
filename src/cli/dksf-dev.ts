@@ -131,6 +131,8 @@ function extractTsconfigArg(args: string[]): string | undefined {
 }
 
 function clean(): void {
+    console.log('Cleaning dist/ directory...');
+
     const distDir = join(projectDir, 'dist');
     const devconsoleDir = join(distDir, 'devconsole');
     const hasDevconsole = existsSync(devconsoleDir);
@@ -234,8 +236,12 @@ function cmdClean(): void {
 function cmdBuild(args: string[]): void {
     const watch = args.includes('--watch');
     const tsconfig = extractTsconfigArg(args) ?? 'tsconfig.json';
+    if (isDevRunning()) {
+        console.log('Skipping clean due to running dev server.');
+    } else {
+        clean();
+    }
     console.log('Building...');
-    clean();
     if (watch) {
         const child = spawn(process.execPath, [tscPath, '-w', '--preserveWatchOutput', '-p', tsconfig], {
             stdio: 'inherit',
