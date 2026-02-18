@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `@zyno-io/dk-server-foundation` is a TypeScript foundation library built on top of the Deepkit framework for building server applications. It provides opinionated abstractions and utilities for common server-side patterns including database management, HTTP handling, authentication, workers, RPC, and observability.
 
+Detailed documentation lives in `docs/content/` — see `docs/content/README.md` for the full index. When updating features, update the corresponding doc file there too.
+
 ## Core Commands
 
 ### Build & Development
@@ -55,7 +57,7 @@ yarn demoapp
 
 ### Application Creation Pattern
 
-Applications are created using the `createApp()` factory function (src/app/base.ts:43), which sets up a Deepkit application with opinionated defaults:
+Applications are created using the `createApp()` factory function (src/app/base.ts), which sets up a Deepkit application with opinionated defaults:
 
 - **Dependency Injection**: Uses Deepkit's DI system with custom resolver functions (`resolve()` or `r()`) for accessing providers
 - **Configuration**: Uses `@zyno-io/config` with a custom loader (CustomConfigLoader) that supports environment variables and defaults
@@ -64,166 +66,70 @@ Applications are created using the `createApp()` factory function (src/app/base.
 Key concepts:
 
 - `createApp()` accepts a config class, database class, framework config, CORS options, and feature flags (worker, Deepkit RPC)
-- The function returns a configured Deepkit App instance with all necessary providers, listeners, and hooks
 - **Port in tests**: When `APP_ENV=test`, the `PORT` config value is ignored; the server uses the hardcoded default (3000) or `frameworkConfig.port` if provided
 - Use `@AutoStart()` decorator on services that should initialize at startup (before DI injection)
-- **Graceful Shutdown**: `ShutdownListener` (src/app/shutdown.ts) intercepts SIGTERM/SIGINT and dispatches `onServerShutdownRequested` before forwarding to Deepkit's built-in shutdown. Listeners on this event are awaited, allowing async cleanup before the framework tears down. Register handlers via `@eventDispatcher.listen(onServerShutdownRequested)`.
+- **Graceful Shutdown**: `ShutdownListener` (src/app/shutdown.ts) intercepts SIGTERM/SIGINT and dispatches `onServerShutdownRequested` before forwarding to Deepkit's built-in shutdown
 
 ### Database Layer
 
-The database system (src/database/) extends Deepkit's ORM with support for both MySQL and PostgreSQL:
+The database system (src/database/) extends Deepkit's ORM with support for both MySQL and PostgreSQL. See `docs/content/database.md` and `src/database/CLAUDE.md` for full details.
 
 - **BaseDatabase**: Core abstraction with transaction hooks, raw query helpers, and session management (src/database/common.ts)
-- **MySQLDatabaseAdapter**: Custom adapter with type transformations for DateString, Coordinate (POINT), and test environment compatibility (src/database/mysql.ts)
-- **PostgresDatabaseAdapter**: Custom adapter with type transformations for DateString and test environment compatibility (src/database/postgres.ts)
-- **Dialect Helpers**: `getDialect()`, `quoteId()`, and dialect-aware SQL fragment generators (src/database/dialect.ts)
-- **Entity Helpers**: Functions like `createEntity()`, `createPersistedEntity()`, `getEntityOr404()` for common CRUD patterns
-- **Transaction Hooks**: Support for pre-commit and post-commit hooks via `session.addPreCommitHook()` and `session.addPostCommitHook()`
-- **Session Locks**: Database-level locking via `session.acquireSessionLock(key)` — uses a `_locks` table on MySQL, `pg_advisory_xact_lock` on PostgreSQL
-
-Entity creation pattern:
-
-```typescript
-// Use createPersistedEntity instead of manually creating and saving
-await createPersistedEntity(MyEntity, { field: value }, session);
-```
-
-Database factory:
-
-```typescript
-// MySQL
-class MyDB extends createMySQLDatabase(
-    {
-        /* pool config */
-    },
-    [Entity1, Entity2]
-) {}
-
-// PostgreSQL
-class MyDB extends createPostgresDatabase(
-    {
-        /* pool config */
-    },
-    [Entity1, Entity2]
-) {}
-```
+- **MySQLDatabaseAdapter** / **PostgresDatabaseAdapter**: Custom adapters with type transformations (src/database/mysql.ts, src/database/postgres.ts)
+- **Entity Helpers**: `createEntity()`, `createPersistedEntity()`, `getEntityOr404()` for common CRUD patterns
+- **Transaction Hooks**: Pre-commit and post-commit hooks via `session.addPreCommitHook()` / `session.addPostCommitHook()`
+- **Session Locks**: `session.acquireSessionLock(key)` — uses `_locks` table on MySQL, `pg_advisory_xact_lock` on PostgreSQL
 
 ### HTTP Layer
 
-Custom HTTP handling (src/http/) builds on Deepkit's HTTP module:
-
-- **CustomHttpKernel**: Replaces Deepkit's default HttpKernel with custom middleware and error handling (src/http/kernel.ts)
-- **HTTP Context**: Request context ID generation and pluggable context resolver (src/http/context.ts)
-- **CORS Support**: Multi-origin CORS configuration via HttpCorsListener (src/http/cors.ts)
-- **Authentication**: JWT and Basic Auth providers with decorator-based guards (src/http/auth.ts)
-- **File Uploads**: Support for multipart uploads with `multipartJsonKey: '_payload'` configuration
-- **Workflow**: Custom workflow listener for pre/post request hooks (src/http/workflow.ts)
+Custom HTTP handling (src/http/) builds on Deepkit's HTTP module. See `docs/content/http.md` for details.
 
 Response types: Use `OkResponse`, `RedirectResponse`, `EmptyResponse`, or `AnyResponse` for type-safe returns.
 
 ### Worker System
 
-Background job processing (src/services/worker/) using BullMQ with Redis:
-
-- **BaseJob**: Extend this class and use `@WorkerJob()` decorator to define jobs
-- **WorkerService**: Queue jobs via `workerSvc.queueJob(JobClass, data, options)`
-- **Job Runners**: Separate process workers that execute queued jobs (src/services/worker/runner.ts)
-- **Job Recorder**: Monitors job completion and failures via leader-elected recorder (src/services/worker/recorder.ts). One runner self-elects as recorder using `LeaderService`; if it goes down, another takes over.
+Background job processing (src/services/worker/) using BullMQ with Redis. See `docs/content/worker.md` and `src/services/worker/CLAUDE.md` for details.
 
 Jobs are automatically registered when `enableWorker: true` is passed to `createApp()`.
 
-Job pattern:
-
-```typescript
-@WorkerJob()
-class MyJob extends BaseJob<InputType, OutputType> {
-    async handle(data: InputType): Promise<OutputType> {
-        // Job logic
-    }
-}
-```
-
 ### SRPC (Simple RPC)
 
-Custom bidirectional RPC system (src/srpc/) over WebSocket:
-
-- **SrpcServer**: Server-side RPC handler with WebSocket transport
-- **SrpcClient**: WebSocket client with reconnect and heartbeat
-- **SrpcByteStream**: Efficient binary streaming over existing connections
+Custom bidirectional RPC system (src/srpc/) over WebSocket. See `docs/content/srpc.md` and `src/srpc/CLAUDE.md` for details.
 
 Use `dksf-gen-proto` CLI to generate TypeScript types from `.proto` files using ts-proto.
 
-Authentication uses HMAC signatures with clock drift tolerance (configurable via `SRPC_AUTH_CLOCK_DRIFT_MS`).
-
 ### Observability
 
-Integrated telemetry (src/telemetry/):
-
-- **OpenTelemetry**: Automatic instrumentation for HTTP, database, Redis, DNS, and BullMQ (src/telemetry/otel/)
-- **Sentry**: Error tracking with automatic flushing on uncaught exceptions
-- **Custom Metrics**: MariaDB instrumentation (src/telemetry/otel/MariaDBInstrumentation.ts)
-- **Tracing Helpers**: `withRootSpan()` and `withSpan()` for manual span creation
+Integrated telemetry (src/telemetry/). See `docs/content/telemetry.md` for details.
 
 Initialize telemetry by calling `init()` from src/telemetry/otel/index.ts before other imports.
 
 ### Helper Utilities
 
-Organized by category (src/helpers/):
-
-- **async/**: AsyncContext, promise helpers, process utilities
-- **data/**: Array manipulation, object utilities, serialization, transformers
-- **redis/**: Broadcast, cache (with TTL), mutex (Redis-backed distributed locking)
-- **security/**: Crypto (AES-GCM encryption), validation helpers
-- **io/**: Package metadata helpers, stream utilities
-- **utils/**: Date utilities, error handling, UUID v7 generation
-- **framework/**: Deepkit-specific decorators and injection helpers
+Organized by category (src/helpers/). See `docs/content/helpers.md` and `src/helpers/CLAUDE.md` for details.
 
 ### Configuration
 
-Configuration (src/app/config.ts) uses `@zyno-io/config` with environment variable support:
-
-- `BaseAppConfig`: Contains all framework-level configuration (MySQL, PostgreSQL, Redis, Auth, Mail, etc.)
-- Applications should extend BaseAppConfig with their own settings
-- Config is available via `getAppConfig()` or by injecting the config class
-- Secrets should use `_SECRET` suffix in environment variable names
-
-### Services
-
-Core services (src/services/):
-
-- **Logger**: Extended Pino logger with scoped instances via `createLogger(this)` (src/services/logger.ts)
-- **MailService**: Email sending via Postmark or SMTP (src/services/mail/)
-- **CLI Commands**: REPL (`ReplCommand`) and provider invoke (`ProviderInvokeCommand`) for debugging
-- **WorkerService**: Background job queueing (see Worker System above)
+Configuration (src/app/config.ts) uses `@zyno-io/config` with environment variable support. See `docs/content/configuration.md` for the full reference.
 
 ### Test Infrastructure
-
-Test infrastructure (tests/):
 
 - Tests use `node:test` runner against compiled output in `dist/`
 - Test compilation: `tsc -p tsconfig.test.json` compiles `tests/` into `dist/tests/`
 - Test runner: `dksf-test` CLI tool (src/cli/dksf-test.ts) handles spawning `node --test`
-- Global setup enforces UTC timezone (tests/shared/globalSetup.ts)
 - Test files use `*.spec.ts` naming convention
 - Test timeout: 180 seconds (high to accommodate `describe()` suite-level timeouts on Node 24+)
 - Testing utilities: `TestingHelpers.createTestingFacade()`, `makeMockRequest()` (src/testing/)
 - Database tests use `forEachAdapter()` to run against both MySQL and PostgreSQL
 - Tests require MySQL and Redis; PostgreSQL tests run when `PG_HOST` is set (skipped otherwise)
 
-Run a single test:
-
-```bash
-yarn test tests/helpers/array.spec.ts
-```
+See `docs/content/testing.md` for more.
 
 ### Type System
 
-Custom types (src/types/):
+Custom types (src/types/): Phone, Coordinate (MySQL POINT), OnUpdate, DateString, and more. See `docs/content/types.md`.
 
-- **Phone**: Google libphonenumber integration for phone number validation
-- **Coordinate**: Geo-coordinates with MySQL POINT support (MySQL-only)
-- **OnUpdate**: MySQL `ON UPDATE` expression annotation (e.g., `Date & OnUpdate<'CURRENT_TIMESTAMP'>`)
-- Deepkit reflection is enabled (`"reflection": true` in tsconfig.json)
+Deepkit reflection is enabled (`"reflection": true` in tsconfig.json).
 
 ## Important Notes
 
@@ -233,54 +139,45 @@ Custom types (src/types/):
 - **Decorators**: TypeScript experimental decorators are required (`experimentalDecorators: true`)
 - **Postinstall**: Runs `dksf-install` CLI tool (or `patch-package && deepkit-type-install` as fallback)
 - **Test Environment**: Special handling for Date mocks and worker queueing (jobs are not queued in test environment)
-- **Dual Database Support**: Both MySQL (`@deepkit/mysql`) and PostgreSQL (`@deepkit/postgres`) are supported. Coordinate/POINT type is MySQL-only. Session locks use `_locks` table on MySQL and `pg_advisory_xact_lock` on PostgreSQL.
+- **Dual Database Support**: Both MySQL (`@deepkit/mysql`) and PostgreSQL (`@deepkit/postgres`) are supported. Coordinate/POINT type is MySQL-only.
 
 ## CLI Tools
 
-- `dksf-dev`: All-in-one dev workflow (clean, build, run, migrate, repl, test) with `-p/--tsconfig` support (src/cli/dksf-dev.ts)
-- `dksf-test`: Test runner that compiles and runs `node --test` (src/cli/dksf-test.ts)
-- `dksf-install`: Post-install script for setup (src/cli/dksf-install.ts)
-- `dksf-update`: Update utility (src/cli/dksf-update.ts)
-- `dksf-gen-proto`: Generate TypeScript types from .proto files using ts-proto (src/cli/dksf-gen-proto.ts)
+- `dksf-dev`: All-in-one dev workflow (clean, build, run, migrate, repl, test) with `-p/--tsconfig` support
+- `dksf-test`: Test runner that compiles and runs `node --test`
+- `dksf-install`: Post-install script for setup
+- `dksf-update`: Update utility
+- `dksf-gen-proto`: Generate TypeScript types from .proto files using ts-proto
+
+See `docs/content/cli.md` for full details.
 
 ## Development Mode Features
 
 When `APP_ENV !== 'production'`:
 
-- **DevConsole**: Built-in web dashboard at `/_devconsole/`, initialized via `initDevConsole()` in `src/devconsole/patches.ts`. Provides HTTP request inspector, SRPC connection monitor, database entity browser with SQL editor, BullMQ worker inspector, Redis mutex monitor, health check viewer, environment config display, OpenAPI schema viewer, and a live REPL. Localhost-only access enforced by `DevConsoleLocalhostMiddleware`. Uses SRPC over WebSocket (`/_devconsole/ws`) for real-time push updates. Frontend is a Vue 3 SPA in `devconsole/` that builds to `dist/devconsole/`. Server-side code lives in `src/devconsole/` — `patches.ts` monkey-patches core components (HTTP kernel, SRPC, worker recorder, mutex) to intercept events; `devconsole.store.ts` holds ring buffers; `devconsole.ws.ts` is the SRPC server; `devconsole.controller.ts` serves static assets.
+- **DevConsole**: Built-in web dashboard at `/_devconsole/`. See `docs/content/devconsole.md` for full details. Frontend is a Vue 3 SPA in `devconsole/` that builds to `dist/devconsole/`. Server-side code lives in `src/devconsole/` — `patches.ts` monkey-patches core components to intercept events; `devconsole.store.ts` holds ring buffers; `devconsole.ws.ts` is the SRPC server; `devconsole.controller.ts` serves static assets. Proto definitions are in `resources/proto/devconsole.proto` — run `yarn gen:proto` after changes.
 - **Demo App**: `yarn demoapp` runs a demo app with auto-generated traffic to showcase all DevConsole features
 - Set `ENABLE_OPENAPI_SCHEMA` to also dump the schema to `openapi.yaml` on disk
-- Additional debugging tools in `src/app/dev.ts`
 - Lower MySQL/PostgreSQL connection pool limits (5 vs 10)
 - Shorter idle timeouts
 
 ## Migration System
 
-Database migrations (src/database/migration/):
-
-- Custom migration commands replace Deepkit's defaults
-- Use `runMigrations()` helper to execute migrations programmatically
-- Migrations stored in directory returned by `getMigrationsDir()` (runtime) or `getSourceMigrationsDir()` (always `src/migrations/`, used by `migration:create` and `migration:reset`)
-- Character set standardization via `standardizeDbCollation()` (MySQL-only; no-ops on PostgreSQL)
+Database migrations (src/database/migration/). See `docs/content/database.md` for the full migration reference.
 
 ### Migration Commands
 
 - `migration:create` — Compares entity definitions against the live database and generates a migration file with the DDL to bring the DB in sync. Supports `--non-interactive` flag for CI. Both MySQL and PostgreSQL.
 - `migration:run` — Executes all pending migrations from the migrations directory
-- `migration:reset` — Removes all migrations and regenerates a base migration from entity definitions (using the same entity-reader and DDL generator as `migration:create`)
-- `migration:characters` — Standardizes character set/collation to `utf8mb4_0900_ai_ci` (MySQL-only)
+- `migration:reset` — Removes all migrations and regenerates a base migration from entity definitions
+- `migration:charset` — Standardizes character set/collation to `utf8mb4_0900_ai_ci` (MySQL-only)
 
 ### Schema Migration Generator (`migration:create`)
 
 The `migration:create` command (src/database/migration/create/) is a custom implementation that:
 
-1. **Reads entity schema** via Deepkit's `ReflectionClass` — resolves all type annotations (`DateString`, `UuidString`, `Length<N>`, `MaxLength<N>`, `MySQLCoordinate`, `OnUpdate<expr>`, enums, etc.) to dialect-specific column types
-2. **Reads database schema** via `information_schema` queries — introspects columns, indexes, foreign keys, and enum types from the live database
+1. **Reads entity schema** via Deepkit's `ReflectionClass` — resolves all type annotations to dialect-specific column types
+2. **Reads database schema** via `information_schema` queries — introspects columns, indexes, foreign keys, and enum types
 3. **Compares schemas** — diffs entity vs DB to detect added/removed/modified tables, columns, indexes, FKs, and PK changes. Supports interactive rename detection and MySQL column reordering
 4. **Generates DDL** — produces dialect-specific SQL statements (MySQL uses backtick quoting, `MODIFY COLUMN`, `ENUM()`, `AFTER`; PostgreSQL uses double-quote quoting, `ALTER COLUMN`, `CREATE TYPE ... AS ENUM`)
 5. **Writes migration file** — outputs a timestamped `.ts` file using the `createMigration()` format
-
-Key dialect differences handled:
-
-- MySQL: inline `ENUM('a','b')`, `AFTER` clause for column ordering, `TINYINT(1)` for booleans, `AUTO_INCREMENT`
-- PostgreSQL: `CREATE TYPE ... AS ENUM`, no column reordering support, native `BOOLEAN`, `SERIAL`/`BIGSERIAL`

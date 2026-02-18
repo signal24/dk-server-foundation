@@ -318,6 +318,28 @@ export class DevConsoleSrpcServer {
             }
         });
 
+        // Database Log
+        s.registerMessageHandler('uGetDatabaseQueries', async () => {
+            return { jsonData: JSON.stringify(this.store.dbQueries.toArray().reverse()) };
+        });
+        s.registerMessageHandler('uClearDatabaseQueries', async () => {
+            this.store.clearDatabaseQueries();
+            this.broadcast('db:cleared', {});
+            return {};
+        });
+
+        // Clear
+        s.registerMessageHandler('uClearRequests', async () => {
+            this.store.clearHttpEntries();
+            this.broadcast('http:cleared', {});
+            return {};
+        });
+        s.registerMessageHandler('uClearSrpcMessages', async () => {
+            this.store.clearSrpcMessages();
+            this.broadcast('srpc:cleared', {});
+            return {};
+        });
+
         // Mutexes
         s.registerMessageHandler('uGetMutexes', async () => {
             return {

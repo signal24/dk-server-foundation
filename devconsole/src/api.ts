@@ -159,6 +159,16 @@ export interface MutexData {
     history: MutexEntry[];
 }
 
+export interface DatabaseQueryEntry {
+    id: string;
+    timestamp: number;
+    sql: string;
+    params: unknown[];
+    status: 'running' | 'ok' | 'error';
+    durationMs?: number;
+    error?: string;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function resp(reply: any, key: string) {
     const responseKey = `${key}Response`;
@@ -279,5 +289,22 @@ export const api = {
     mutexes: async (): Promise<MutexData> => {
         const reply = await ws.invoke('uGetMutexes', {});
         return JSON.parse(resp(reply, 'uGetMutexes').jsonData);
+    },
+
+    clearRequests: async (): Promise<void> => {
+        await ws.invoke('uClearRequests', {});
+    },
+
+    clearSrpcMessages: async (): Promise<void> => {
+        await ws.invoke('uClearSrpcMessages', {});
+    },
+
+    databaseQueries: async (): Promise<DatabaseQueryEntry[]> => {
+        const reply = await ws.invoke('uGetDatabaseQueries', {});
+        return JSON.parse(resp(reply, 'uGetDatabaseQueries').jsonData);
+    },
+
+    clearDatabaseQueries: async (): Promise<void> => {
+        await ws.invoke('uClearDatabaseQueries', {});
     }
 };

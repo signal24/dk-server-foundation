@@ -395,7 +395,7 @@ node app.js migration:reset
 ### Character Set Standardization
 
 ```bash
-node app.js migration:characters [charset] [collation]
+node app.js migration:charset [charset] [collation]
 # Defaults: utf8mb4, utf8mb4_0900_ai_ci
 ```
 

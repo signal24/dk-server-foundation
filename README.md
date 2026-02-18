@@ -416,7 +416,7 @@ logger.error('Failed to process', err);
 | `migration:create`                           | Generate migration from entity/DB schema diff            |
 | `migration:run`                              | Run pending database migrations                          |
 | `migration:reset`                            | Reset migrations to a single base migration              |
-| `migration:characters [charset] [collation]` | Standardize database character set                       |
+| `migration:charset [charset] [collation]`    | Standardize database character set                       |
 
 ## DevConsole
 

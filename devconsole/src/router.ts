@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import DashboardView from './views/DashboardView.vue';
 import DatabaseView from './views/DatabaseView.vue';
+import DatabaseLogView from './views/DatabaseLogView.vue';
 import EnvView from './views/EnvView.vue';
 import HealthView from './views/HealthView.vue';
 import MutexView from './views/MutexView.vue';
@@ -16,6 +17,7 @@ export const router = createRouter({
     routes: [
         { path: '/', component: DashboardView },
         { path: '/database', component: DatabaseView },
+        { path: '/database-log', component: DatabaseLogView },
         { path: '/env', component: EnvView },
         { path: '/health', component: HealthView },
         { path: '/mutex', component: MutexView },

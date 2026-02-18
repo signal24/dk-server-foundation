@@ -1,7 +1,13 @@
 <template>
     <div class="requests-layout" ref="layoutEl" data-resize-container>
         <div class="requests-list" :class="{ 'has-detail': !!selected }">
-            <h1 class="page-title">HTTP Requests</h1>
+            <div class="page-header">
+                <h1 class="page-title">HTTP Requests</h1>
+                <div class="header-actions">
+                    <input v-model="searchFilter" type="text" class="filter-input" placeholder="Filter URLs..." />
+                    <button class="btn btn-danger" @click="clearAll">Clear</button>
+                </div>
+            </div>
             <div v-if="loading" class="loading">Loading...</div>
             <div v-else-if="error" class="error">{{ error }}</div>
             <div v-else class="card">
@@ -18,7 +24,7 @@
                     </thead>
                     <tbody>
                         <tr
-                            v-for="entry in data"
+                            v-for="entry in filteredData"
                             :key="entry.id"
                             class="clickable-row"
                             :class="{ 'selected-row': selected?.id === entry.id }"
@@ -35,7 +41,7 @@
                             <td class="mono text-muted">{{ entry.durationMs }}ms</td>
                             <td class="mono text-muted">{{ entry.remoteAddress }}</td>
                         </tr>
-                        <tr v-if="data && data.length === 0">
+                        <tr v-if="filteredData.length === 0">
                             <td colspan="6" class="text-muted" style="text-align: center">No requests captured yet</td>
                         </tr>
                     </tbody>
@@ -106,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { api, type HttpEntry, type ErrorInfo } from '../api';
 import { ws, connected } from '../ws';
@@ -124,6 +130,14 @@ const loading = ref(true);
 const error = ref('');
 const selected = ref<HttpEntry | null>(null);
 const prettyJson = ref(localStorage.getItem('dksf:prettyJson') !== 'false');
+const searchFilter = ref('');
+
+const filteredData = computed(() => {
+    if (!data.value) return [];
+    if (!searchFilter.value) return data.value;
+    const q = searchFilter.value.toLowerCase();
+    return data.value.filter(e => e.url.toLowerCase().includes(q));
+});
 
 watch(prettyJson, v => localStorage.setItem('dksf:prettyJson', String(v)));
 
@@ -167,6 +181,17 @@ function closeDetail() {
     router.replace({ query: {} });
 }
 
+async function clearAll() {
+    await api.clearRequests();
+    data.value = [];
+    selected.value = null;
+}
+
+const onCleared = () => {
+    data.value = [];
+    selected.value = null;
+};
+
 const onNewEntry = (entry: HttpEntry) => {
     if (data.value) {
         data.value.unshift(entry);
@@ -190,6 +215,7 @@ async function fetchData() {
 
 onMounted(() => {
     ws.on('http:entry', onNewEntry);
+    ws.on('http:cleared', onCleared);
 
     fetchData();
 
@@ -202,10 +228,72 @@ onMounted(() => {
 
 onUnmounted(() => {
     ws.off('http:entry', onNewEntry);
+    ws.off('http:cleared', onCleared);
 });
 </script>
 
 <style scoped>
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.page-header .page-title {
+    margin-bottom: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-input {
+    background: #0d1117;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    width: 220px;
+}
+
+.filter-input::placeholder {
+    color: #484f58;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #58a6ff;
+}
+
+.btn {
+    background: #21262d;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #30363d;
+    border-color: #8b949e;
+}
+
+.btn-danger {
+    color: #f85149;
+    border-color: #f8514966;
+}
+
+.btn-danger:hover {
+    background: #da36332a;
+    border-color: #f85149;
+}
+
 .requests-layout {
     display: flex;
     flex-direction: column;

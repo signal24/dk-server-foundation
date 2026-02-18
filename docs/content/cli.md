@@ -98,12 +98,12 @@ Behavior:
 5. Writes `00000000_000000_base.ts` with all CREATE statements
 6. Skips internal tables (prefixed with `_`)
 
-#### `migration:characters`
+#### `migration:charset`
 
 Standardize database character set and collation:
 
 ```bash
-node app.js migration:characters [charset] [collation]
+node app.js migration:charset [charset] [collation]
 ```
 
 Defaults to `utf8mb4` / `utf8mb4_0900_ai_ci`.
@@ -233,6 +233,18 @@ dksf-dev migrate:reset --debug
 ```
 
 Builds (if needed), then runs `node --inspect=9226 . migration:reset`.
+
+#### `dksf-dev migrate:charset`
+
+Standardizes character set and collation for all tables (MySQL-only):
+
+```bash
+dksf-dev migrate:charset
+dksf-dev migrate:charset --debug
+dksf-dev migrate:charset utf8mb4 utf8mb4_0900_ai_ci
+```
+
+Builds (if needed), then runs `node --inspect=9226 . migration:charset`. Extra arguments (charset, collation) are passed through.
 
 #### `dksf-dev test`
 

@@ -305,9 +305,16 @@ function cmdMigrate(subcmd: string, args: string[]): void {
         console.log('Using existing dev build from another process.');
     }
 
-    const deepkitCmd = subcmd === 'create' ? 'migration:create' : subcmd === 'reset' ? 'migration:reset' : 'migration:run';
+    const deepkitCmd =
+        subcmd === 'create'
+            ? 'migration:create'
+            : subcmd === 'reset'
+              ? 'migration:reset'
+              : subcmd === 'charset'
+                ? 'migration:charset'
+                : 'migration:run';
     const childArgs = [deepkitCmd];
-    if (subcmd === 'create') {
+    if (subcmd === 'create' || subcmd === 'charset') {
         const remaining = args.filter(a => a !== '--debug');
         childArgs.push(...remaining);
     }
@@ -387,6 +394,9 @@ async function main(): Promise<void> {
         case 'migrate:reset':
             cmdMigrate('reset', args);
             return;
+        case 'migrate:charset':
+            cmdMigrate('charset', args);
+            return;
         case 'repl':
             cmdRepl(args);
             return;
@@ -403,6 +413,7 @@ Commands:
   migrate [--debug]            Clean, build (if needed), and run migrations
   migrate:create [--debug]     Clean, build (if needed), and create a migration
   migrate:reset [--debug]      Clean, build (if needed), and reset migrations
+  migrate:charset [--debug]    Clean, build (if needed), and standardize charset/collation
   repl [--debug]               Clean, build (if needed), and start a REPL
   test [--debug] [args...]     Clean, build tests, and run dksf-test
 

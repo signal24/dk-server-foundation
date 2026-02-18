@@ -180,6 +180,24 @@ message UGetHealthChecksResponse {
   string jsonData = 1;
 }
 
+// Clear
+
+message UClearRequestsRequest {}
+message UClearRequestsResponse {}
+
+message UClearSrpcMessagesRequest {}
+message UClearSrpcMessagesResponse {}
+
+// Database Log
+
+message UGetDatabaseQueriesRequest {}
+message UGetDatabaseQueriesResponse {
+  string jsonData = 1;
+}
+
+message UClearDatabaseQueriesRequest {}
+message UClearDatabaseQueriesResponse {}
+
 // Mutexes
 
 message UGetMutexesRequest {}
@@ -222,6 +240,10 @@ message DevConsoleClientMessage {
     UDatabaseQueryRequest uDatabaseQueryRequest = 2112;
     UGetHealthChecksRequest uGetHealthChecksRequest = 2113;
     UGetMutexesRequest uGetMutexesRequest = 2114;
+    UClearRequestsRequest uClearRequestsRequest = 2115;
+    UClearSrpcMessagesRequest uClearSrpcMessagesRequest = 2116;
+    UGetDatabaseQueriesRequest uGetDatabaseQueriesRequest = 2117;
+    UClearDatabaseQueriesRequest uClearDatabaseQueriesRequest = 2118;
   }
 }
 
@@ -256,5 +278,9 @@ message DevConsoleServerMessage {
     UDatabaseQueryResponse uDatabaseQueryResponse = 2112;
     UGetHealthChecksResponse uGetHealthChecksResponse = 2113;
     UGetMutexesResponse uGetMutexesResponse = 2114;
+    UClearRequestsResponse uClearRequestsResponse = 2115;
+    UClearSrpcMessagesResponse uClearSrpcMessagesResponse = 2116;
+    UGetDatabaseQueriesResponse uGetDatabaseQueriesResponse = 2117;
+    UClearDatabaseQueriesResponse uClearDatabaseQueriesResponse = 2118;
   }
 }

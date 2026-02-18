@@ -21,8 +21,11 @@ DevConsole is zero-config, localhost-only, and requires no additional setup beyo
 ### SRPC
 ![DevConsole SRPC](/images/devconsole/05-srpc.png)
 
-### Database
-![DevConsole Database](/images/devconsole/06-database.png)
+### Database Entities
+![DevConsole Database Entities](/images/devconsole/06-database.png)
+
+### Database Log
+![DevConsole Database Log](/images/devconsole/06b-database-log.png)
 
 ### Health Checks
 ![DevConsole Health](/images/devconsole/07-health.png)
@@ -54,13 +57,35 @@ Displays the OpenAPI schema generated from your HTTP routes. The schema is gener
 
 HTTP request inspector capturing the last 500 requests. Shows timestamp, method, URL, status code, duration, and remote address. Expanding a request reveals full request/response headers and bodies (up to 32KB), plus error details with stack traces for failed requests. New requests appear in real time.
 
+A search input filters the table by URL substring (case-insensitive). The **Clear** button removes all captured entries — this is synced across connected DevConsole clients via a server broadcast.
+
 ### SRPC
 
 SRPC connection monitor showing active connections (client ID, stream ID, app version, address, uptime, ping, message count) and recent disconnections. Includes a message-level inspector (last 500 messages) showing type, direction, request ID, reply status, and errors. Messages can be filtered by stream ID.
 
-### Database
+A search input filters the per-connection message list by message type (case-insensitive). The **Clear** button removes all captured messages and recent disconnections — synced across clients.
+
+### Database Entities
 
 Entity browser listing all registered ORM entities with table names and columns. Includes a SQL query editor — `SELECT` queries return result rows, while `INSERT`/`UPDATE`/`DELETE` return affected row counts. Execute with Ctrl+Enter.
+
+### Database Log
+
+Live query log capturing all SQL queries executed through the ORM. Queries appear immediately with a **running** status and update on completion with duration and error info (last 500 entries).
+
+The table shows timestamp, SQL (truncated), parameter count, duration, and status. Clicking a row opens a detail panel with:
+
+- **Composite SQL** — the prepared SQL with binding placeholders replaced by their values inline, formatted for readability (dates as `'YYYY-MM-DD HH:mm:ss'` in UTC, strings escaped, numbers bare, booleans as `TRUE`/`FALSE`, JSON objects as quoted strings, nulls as `NULL`)
+- **Prepared SQL** — the raw parameterized SQL
+- **Bindings** — the parameter values as JSON
+- **Error** — error message (if the query failed)
+
+A search input filters by SQL substring. The **Clear** button removes all captured queries — synced across clients.
+
+Query capture works by monkey-patching at the lowest Deepkit ORM level:
+
+- `MySQLConnection.run()` and `PostgresConnection.run()` for write operations (INSERT, UPDATE, DELETE, DDL)
+- `SQLConnection.execAndReturnAll()` and `SQLConnection.execAndReturnSingle()` for read operations (SELECT, COUNT)
 
 ### Health
 
@@ -88,7 +113,7 @@ BullMQ job inspector showing queue statistics (active, waiting, delayed, complet
 
 DevConsole uses SRPC over WebSocket (`/_devconsole/ws`) for bidirectional communication. The protocol is defined in `resources/proto/devconsole.proto` and uses Protocol Buffers for encoding.
 
-Real-time events (new HTTP requests, SRPC messages, mutex state changes, worker jobs) are pushed from server to client without polling.
+Real-time events (new HTTP requests, SRPC messages, database queries, mutex state changes, worker jobs) are pushed from server to client without polling.
 
 ### Security
 
@@ -103,6 +128,7 @@ DevConsole initializes via `initDevConsole()` in `src/devconsole/patches.ts`, wh
 - **SRPC Client & Server** — observes messages and connection lifecycle
 - **Worker Recorder** — listens to BullMQ job events
 - **Mutex (`withMutex`)** — tracks mutex acquisitions and releases
+- **Database Connections** — intercepts `MySQLConnection.run()`, `PostgresConnection.run()`, `SQLConnection.execAndReturnAll()`, and `SQLConnection.execAndReturnSingle()` to capture all executed queries with timing
 
 Captured data is stored in ring buffers (`DevConsoleStore`) for bounded memory usage.
 

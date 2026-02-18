@@ -1,7 +1,13 @@
 <template>
     <div class="srpc-layout" ref="layoutEl" data-resize-container>
         <div class="srpc-top" :class="{ 'has-detail': !!selectedConn }">
-            <h1 class="page-title">SRPC Connections</h1>
+            <div class="page-header">
+                <h1 class="page-title">SRPC Connections</h1>
+                <div class="header-actions">
+                    <input v-model="messageFilter" type="text" class="filter-input" placeholder="Filter messages..." />
+                    <button class="btn btn-danger" @click="clearAll">Clear</button>
+                </div>
+            </div>
             <div v-if="loading" class="loading">Loading...</div>
             <div v-else-if="error" class="error">{{ error }}</div>
             <template v-else-if="data">
@@ -191,10 +197,17 @@ function formatJson(data: unknown): string {
     }
 }
 
+const messageFilter = ref('');
+
 const streamMessages = computed(() => {
     if (!selectedConn.value) return [];
     const streamId = selectedConn.value.streamId;
-    return messages.value.filter(m => m.streamId === streamId);
+    let msgs = messages.value.filter(m => m.streamId === streamId);
+    if (messageFilter.value) {
+        const q = messageFilter.value.toLowerCase();
+        msgs = msgs.filter(m => m.messageType.toLowerCase().includes(q));
+    }
+    return msgs;
 });
 
 const requestMsg = computed(() => {
@@ -238,6 +251,23 @@ function closeDetail() {
     selectedMsg.value = null;
     updateQuery();
 }
+
+async function clearAll() {
+    await api.clearSrpcMessages();
+    messages.value = [];
+    if (data.value) {
+        data.value.recentDisconnections = [];
+    }
+    selectedMsg.value = null;
+}
+
+const onCleared = () => {
+    messages.value = [];
+    if (data.value) {
+        data.value.recentDisconnections = [];
+    }
+    selectedMsg.value = null;
+};
 
 const onConnection = (conn: SrpcConnection) => {
     if (data.value) {
@@ -289,6 +319,7 @@ onMounted(() => {
     ws.on('srpc:connection', onConnection);
     ws.on('srpc:disconnection', onDisconnection);
     ws.on('srpc:message', onNewMessage);
+    ws.on('srpc:cleared', onCleared);
 
     fetchData();
 
@@ -303,10 +334,72 @@ onUnmounted(() => {
     ws.off('srpc:connection', onConnection);
     ws.off('srpc:disconnection', onDisconnection);
     ws.off('srpc:message', onNewMessage);
+    ws.off('srpc:cleared', onCleared);
 });
 </script>
 
 <style scoped>
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.page-header .page-title {
+    margin-bottom: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-input {
+    background: #0d1117;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    width: 220px;
+}
+
+.filter-input::placeholder {
+    color: #484f58;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: #58a6ff;
+}
+
+.btn {
+    background: #21262d;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 6px 16px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #30363d;
+    border-color: #8b949e;
+}
+
+.btn-danger {
+    color: #f85149;
+    border-color: #f8514966;
+}
+
+.btn-danger:hover {
+    background: #da36332a;
+    border-color: #f85149;
+}
+
 .srpc-layout {
     display: flex;
     flex-direction: column;

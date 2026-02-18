@@ -6,7 +6,7 @@ import { uuid7 } from '../helpers/utils/uuid';
 import { createDevConsoleSrpcObserver, identifyMessageType } from './devconsole.srpc';
 import { DevConsoleController } from './devconsole.controller';
 import { DevConsoleLocalhostMiddleware } from './devconsole.middleware';
-import { DevConsoleStore, type DevConsoleErrorInfo, type DevConsoleMutexEntry } from './devconsole.store';
+import { DevConsoleStore, type DevConsoleDatabaseQueryEntry, type DevConsoleErrorInfo, type DevConsoleMutexEntry } from './devconsole.store';
 
 const _skipObserverSet = new WeakSet<object>();
 
@@ -30,6 +30,7 @@ export function initDevConsole(app: App<any>) {
         patchSrpcClient(store);
         patchSrpcServer(store);
         patchMutex(store);
+        patchDatabase(store);
     }
 }
 
@@ -394,6 +395,106 @@ function patchMutex(store: DevConsoleStore) {
             throw err;
         });
     };
+}
+
+////////////////////////////////////////
+// Database
+
+function patchDatabase(store: DevConsoleStore) {
+    function startEntry(sql: string, params: any[]): DevConsoleDatabaseQueryEntry {
+        const entry: DevConsoleDatabaseQueryEntry = {
+            id: uuid7(),
+            timestamp: Date.now(),
+            sql,
+            params,
+            status: 'running'
+        };
+        store.addDatabaseQuery(entry);
+        return entry;
+    }
+
+    function completeEntry(entry: DevConsoleDatabaseQueryEntry, error?: string) {
+        entry.durationMs = Date.now() - entry.timestamp;
+        if (error) {
+            entry.status = 'error';
+            entry.error = error;
+        } else {
+            entry.status = 'ok';
+        }
+        store.completeDatabaseQuery(entry);
+    }
+
+    // Patch writes: MySQLConnection.run() and PostgresConnection.run()
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { MySQLConnection } = require('@deepkit/mysql');
+        const origMysqlRun = MySQLConnection.prototype.run;
+        MySQLConnection.prototype.run = async function (sql: string, params: any[] = []) {
+            const entry = startEntry(sql, params);
+            try {
+                const result = await origMysqlRun.call(this, sql, params);
+                completeEntry(entry);
+                return result;
+            } catch (err: any) {
+                completeEntry(entry, err.message || String(err));
+                throw err;
+            }
+        };
+    } catch {
+        // @deepkit/mysql not available
+    }
+
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { PostgresConnection } = require('@deepkit/postgres');
+        const origPgRun = PostgresConnection.prototype.run;
+        PostgresConnection.prototype.run = async function (sql: string, params: any[] = []) {
+            const entry = startEntry(sql, params);
+            try {
+                const result = await origPgRun.call(this, sql, params);
+                completeEntry(entry);
+                return result;
+            } catch (err: any) {
+                completeEntry(entry, err.message || String(err));
+                throw err;
+            }
+        };
+    } catch {
+        // @deepkit/postgres not available
+    }
+
+    // Patch reads: SQLConnection.execAndReturnAll() and execAndReturnSingle()
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { SQLConnection } = require('@deepkit/sql');
+        const origExecAll = SQLConnection.prototype.execAndReturnAll;
+        SQLConnection.prototype.execAndReturnAll = async function (sql: string, params?: any[]) {
+            const entry = startEntry(sql, params ?? []);
+            try {
+                const result = await origExecAll.call(this, sql, params);
+                completeEntry(entry);
+                return result;
+            } catch (err: any) {
+                completeEntry(entry, err.message || String(err));
+                throw err;
+            }
+        };
+
+        const origExecSingle = SQLConnection.prototype.execAndReturnSingle;
+        SQLConnection.prototype.execAndReturnSingle = async function (sql: string, params?: any[]) {
+            const entry = startEntry(sql, params ?? []);
+            try {
+                const result = await origExecSingle.call(this, sql, params);
+                completeEntry(entry);
+                return result;
+            } catch (err: any) {
+                completeEntry(entry, err.message || String(err));
+                throw err;
+            }
+        };
+    } catch {
+        // @deepkit/sql not available
+    }
 }
 
 ////////////////////////////////////////

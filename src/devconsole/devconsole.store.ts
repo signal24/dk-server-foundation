@@ -21,6 +21,12 @@ export class RingBuffer<T> {
         return [...this.buffer.slice(this.head), ...this.buffer.slice(0, this.head)] as T[];
     }
 
+    clear(): void {
+        this.buffer = Array.from({ length: this.capacity });
+        this.head = 0;
+        this.count = 0;
+    }
+
     get length(): number {
         return this.count;
     }
@@ -84,6 +90,17 @@ export interface DevConsoleSrpcDisconnection {
     cause: string;
 }
 
+export interface DevConsoleDatabaseQueryEntry {
+    id: string;
+    timestamp: number;
+    sql: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    params: any[];
+    status: 'running' | 'ok' | 'error';
+    durationMs?: number;
+    error?: string;
+}
+
 export interface DevConsoleMutexEntry {
     id: string;
     key: string;
@@ -104,6 +121,7 @@ export class DevConsoleStore {
     readonly srpcMessages = new RingBuffer<DevConsoleSrpcMessage>(500);
     readonly srpcConnections = new Map<string, DevConsoleSrpcConnection>();
     readonly srpcDisconnected = new RingBuffer<DevConsoleSrpcDisconnection>(50);
+    readonly dbQueries = new RingBuffer<DevConsoleDatabaseQueryEntry>(500);
     readonly mutexEntries = new RingBuffer<DevConsoleMutexEntry>(200);
     readonly activeMutexes = new Map<string, DevConsoleMutexEntry>();
     readonly startedAt = Date.now();
@@ -130,6 +148,28 @@ export class DevConsoleStore {
         const disc: DevConsoleSrpcDisconnection = { streamId, clientId, disconnectedAt: Date.now(), cause };
         this.srpcDisconnected.push(disc);
         this.onEvent?.('srpc:disconnection', disc);
+    }
+
+    clearHttpEntries() {
+        this.httpEntries.clear();
+    }
+
+    clearSrpcMessages() {
+        this.srpcMessages.clear();
+        this.srpcDisconnected.clear();
+    }
+
+    addDatabaseQuery(entry: DevConsoleDatabaseQueryEntry) {
+        this.dbQueries.push(entry);
+        this.onEvent?.('db:query', entry);
+    }
+
+    completeDatabaseQuery(entry: DevConsoleDatabaseQueryEntry) {
+        this.onEvent?.('db:query:complete', entry);
+    }
+
+    clearDatabaseQueries() {
+        this.dbQueries.clear();
     }
 
     addMutexPending(entry: DevConsoleMutexEntry) {
