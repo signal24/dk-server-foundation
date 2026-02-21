@@ -3,6 +3,8 @@ import { isDevelopment, isTest } from './const';
 export class BaseAppConfig {
     APP_ENV!: string;
 
+    DEVCONSOLE_ENABLED?: boolean;
+
     PORT?: number;
 
     MYSQL_HOST?: string;
