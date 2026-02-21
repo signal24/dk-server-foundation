@@ -1,1 +1,1 @@
-export { initDevConsole } from './patches';
+export { initDevConsole, startDevConsoleSrpcServer } from './patches';

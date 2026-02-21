@@ -24,9 +24,12 @@ import { BaseAppConfig } from './config';
 import { CustomConfigLoader } from './config.loader';
 import { isDevelopment, isTest } from './const';
 import { doDevPostAppStartup } from './dev';
+
 import { ShutdownListener } from './shutdown';
 import { DBProvider, globalState } from './state';
 import { r } from './resolver';
+
+const enableDevConsole = (isDevelopment && process.env.DEVCONSOLE_ENABLED !== 'false') || process.env.DEVCONSOLE_ENABLED === 'true';
 
 export interface CreateAppOptions<C extends BaseAppConfig> extends RootModuleDefinition {
     config: ClassType<C>;
@@ -85,7 +88,7 @@ export function createApp<T extends CreateAppOptions<any>>(options: T) {
 
     globalState.currentApp = app;
 
-    if ((isDevelopment && process.env.DEVCONSOLE_ENABLED !== 'false') || process.env.DEVCONSOLE_ENABLED === 'true') {
+    if (enableDevConsole) {
         try {
             // eslint-disable-next-line @typescript-eslint/no-require-imports
             require('../devconsole/patches').initDevConsole(app);
@@ -231,6 +234,15 @@ async function doAppPostStartup<T extends RootModuleDefinition>(app: App<T>, ena
         // development only
         if (isDevelopment) {
             doDevPostAppStartup(app);
+        }
+
+        if (enableDevConsole) {
+            try {
+                // eslint-disable-next-line @typescript-eslint/no-require-imports
+                require('../devconsole/patches').startDevConsoleSrpcServer();
+            } catch (err) {
+                app.get(Logger).warn('Failed to start DevConsole SRPC server', err);
+            }
         }
     }
 }

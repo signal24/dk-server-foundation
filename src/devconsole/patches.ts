@@ -2,6 +2,7 @@
 import type { App } from '@deepkit/app';
 import type { HttpRequest, HttpResponse } from '@deepkit/http';
 
+import { createLogger } from '../services';
 import { uuid7 } from '../helpers/utils/uuid';
 import { createDevConsoleSrpcObserver, identifyMessageType } from './devconsole.srpc';
 import { DevConsoleController } from './devconsole.controller';
@@ -31,6 +32,20 @@ export function initDevConsole(app: App<any>) {
         patchSrpcServer(store);
         patchMutex(store);
         patchDatabase(store);
+    }
+}
+
+export function startDevConsoleSrpcServer() {
+    const store = DevConsoleStore.get();
+    if (!store) return;
+
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const { DevConsoleSrpcServer } = require('./devconsole.ws');
+        const srpcServer = new DevConsoleSrpcServer(createLogger('DevConsole'));
+        store.onEvent = (type, data) => srpcServer.broadcast(type, data);
+    } catch (err) {
+        console.warn('[DevConsole] Failed to start SRPC server', err);
     }
 }
 
