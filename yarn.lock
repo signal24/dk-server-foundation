@@ -2644,6 +2644,8 @@ __metadata:
     ws: "npm:^8.19.0"
     yaml: "npm:^2.8.2"
   bin:
+    dk-server-foundation: ./dist/src/cli/dksf.js
+    dksf-create-app: ./dist/src/cli/dksf-create-app.js
     dksf-dev: ./dist/src/cli/dksf-dev.js
     dksf-gen-proto: ./dist/src/cli/dksf-gen-proto.js
     dksf-install: ./dist/src/cli/dksf-install.js

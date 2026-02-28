@@ -1,6 +1,20 @@
 # Getting Started
 
-## Installation
+## Quick Start
+
+Scaffold a new project with a single command:
+
+```bash
+npx @zyno-io/dk-server-foundation create-app @myorg/my-api
+cd my-api
+yarn install
+# Configure .env.development with your database credentials
+yarn dev
+```
+
+This generates a ready-to-run project with OTEL telemetry, a controller, a service, a database entity, and all config files. See [CLI Tools](./cli.md#dksf-create-app) for details.
+
+## Manual Installation
 
 ```bash
 npm install @zyno-io/dk-server-foundation

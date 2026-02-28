@@ -143,6 +143,7 @@ Deepkit reflection is enabled (`"reflection": true` in tsconfig.json).
 
 ## CLI Tools
 
+- `dksf-create-app`: Scaffold a new application (`npx @zyno-io/dk-server-foundation create-app <package-name> [path]`)
 - `dksf-dev`: All-in-one dev workflow (clean, build, run, migrate, repl, test) with `-p/--tsconfig` support
 - `dksf-test`: Test runner that compiles and runs `node --test`
 - `dksf-install`: Post-install script for setup

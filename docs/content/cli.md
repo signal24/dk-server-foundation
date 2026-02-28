@@ -130,6 +130,45 @@ node app.js worker:queue SendEmailJob '{"to":"user@example.com","subject":"Hello
 
 These are installed as bin scripts by the package:
 
+### `dksf-create-app`
+
+Scaffold a new application from the built-in template:
+
+```bash
+# Using npx (no install required)
+npx @zyno-io/dk-server-foundation create-app <package-name> [path]
+
+# Or directly if dk-server-foundation is installed
+dksf-create-app <package-name> [path]
+```
+
+| Argument         | Description                                                      |
+| ---------------- | ---------------------------------------------------------------- |
+| `<package-name>` | npm package name (e.g. `@myorg/my-api` or `my-api`)             |
+| `[path]`         | Output directory (defaults to the unscoped package name)         |
+
+The generated project includes:
+
+- OTEL telemetry setup
+- A single controller, service, and database entity
+- MySQL database configuration
+- TypeScript config with Deepkit reflection enabled
+- Development environment defaults (`.env.development`)
+- Standard scripts: `dev`, `build`, `test`, `migrate`, `migrate:create`, `migrate:reset`
+
+Examples:
+
+```bash
+# Creates ./my-api/ with package name "my-api"
+npx @zyno-io/dk-server-foundation create-app my-api
+
+# Creates ./my-api/ with package name "@myorg/my-api"
+npx @zyno-io/dk-server-foundation create-app @myorg/my-api
+
+# Creates ./custom-path/ with package name "@myorg/my-api"
+npx @zyno-io/dk-server-foundation create-app @myorg/my-api ./custom-path
+```
+
 ### `dksf-dev`
 
 All-in-one development workflow tool. Subcommands for cleaning, building, running dev servers, migrations, tests, and REPL.

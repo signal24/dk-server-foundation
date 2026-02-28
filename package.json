@@ -11,6 +11,8 @@
         "url": "https://github.com/zyno-io/dk-server-foundation/issues"
     },
     "bin": {
+        "dk-server-foundation": "./dist/src/cli/dksf.js",
+        "dksf-create-app": "./dist/src/cli/dksf-create-app.js",
         "dksf-dev": "./dist/src/cli/dksf-dev.js",
         "dksf-gen-proto": "./dist/src/cli/dksf-gen-proto.js",
         "dksf-install": "./dist/src/cli/dksf-install.js",
@@ -129,6 +131,7 @@
         "docs/",
         "patches/",
         "src/",
+        "template-app/",
         "types.d.ts",
         "!**/*.tsbuildinfo",
         "!**/CLAUDE.md",

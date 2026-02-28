@@ -1,0 +1,29 @@
+{
+    "name": "%%PACKAGE_NAME%%",
+    "version": "0.1.0",
+    "private": true,
+    "main": "./dist/src/index.js",
+    "scripts": {
+        "build": "dksf-dev build",
+        "dev": "dksf-dev run",
+        "migrate": "dksf-dev migrate",
+        "migrate:create": "dksf-dev migrate:create",
+        "migrate:reset": "dksf-dev migrate:reset",
+        "test": "dksf-dev test",
+        "test:debug": "dksf-dev test --debug",
+        "format": "prettier --write .",
+        "postinstall": "dksf-install"
+    },
+    "dependencies": {
+        "@deepkit/http": "1.0.19",
+        "@deepkit/logger": "1.0.19",
+        "@deepkit/orm": "1.0.19",
+        "@deepkit/type": "1.0.19",
+        "@zyno-io/dk-server-foundation": "%%DKSF_VERSION%%"
+    },
+    "devDependencies": {
+        "@types/node": "^22",
+        "prettier": "^3",
+        "typescript": "~5.9"
+    }
+}
